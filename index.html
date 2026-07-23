@@ -6,355 +6,481 @@
     <title>LankaJobs - Home & Candidate Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .fade-in { animation: fadeIn 0.4s ease-in-out; }
         .hidden-view { display: none !important; }
+        
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .circular-progress { position: relative; width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(#e11d48 0deg, #f1f5f9 0deg); display: flex; align-items: center; justify-content: center; transition: background 0.5s ease-in-out; }
-        .circular-progress::before { content: ""; position: absolute; width: 120px; height: 120px; border-radius: 50%; background-color: white; }
-        .progress-value { position: relative; font-size: 2rem; font-weight: 700; color: #1e293b; }
-        .vertical-tab-text { writing-mode: vertical-rl; transform: rotate(180deg); text-orientation: mixed; white-space: nowrap; }
+
+        /* Vertical Text for Sidebar Tab */
+        .vertical-tab-text {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            text-orientation: mixed;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans selection:bg-rose-200 selection:text-rose-900 min-h-screen flex flex-col overflow-x-hidden">
 
-    <div id="initial-loader" class="fixed inset-0 bg-slate-50 z-50 flex flex-col justify-center items-center">
-        <i data-lucide="loader-2" class="w-12 h-12 text-rose-600 animate-spin mb-4"></i>
-        <h2 class="text-xl font-bold text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></h2>
-        <p class="text-slate-500 text-sm mt-2">Loading your portal...</p>
-    </div>
-
-    <!-- Navigation -->
-    <nav id="main-nav" class="hidden bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+    <!-- Top Navigation -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-[60] shadow-sm h-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full">
                 <div class="flex items-center">
                     <a href="index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
-                        <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center mr-2 group-hover:bg-rose-700 transition-colors"><i data-lucide="briefcase" class="text-white w-6 h-6"></i></div>
-                        <span class="font-bold text-xl md:text-2xl text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></span>
+                        <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center mr-2 group-hover:bg-rose-700 transition-colors shadow-inner">
+                            <i data-lucide="briefcase" class="text-white w-6 h-6"></i>
+                        </div>
+                        <span class="font-bold text-2xl text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></span>
                     </a>
                 </div>
-                <div class="flex items-center gap-4">
-                    <a href="post_vacancy.html" class="hidden md:block px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 transition-colors">Post Vacancy</a>
-                    <div class="hidden md:block h-6 w-px bg-gray-300 mx-1"></div>
-                    <button onclick="window.handleLogout()" class="flex items-center gap-2 bg-white border border-gray-300 text-slate-600 px-3 py-1.5 md:px-4 md:py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium text-sm">
-                        <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+                
+                <div class="hidden md:flex sm:items-center sm:space-x-4">
+                    <a href="postyourvacancy.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Post Your Vacancy</a>
+                    <a href="contactus.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Contact Us</a>
+                    <div class="h-6 w-px bg-gray-300 mx-2"></div>
+                    
+                    <!-- Auth Section (Desktop) -->
+                    <div id="auth-section-desktop" class="flex items-center gap-3">
+                        <a href="login.html" class="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium">
+                            <i data-lucide="log-in" class="w-4 h-4 text-slate-500"></i>
+                            Log in / Sign in
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex items-center md:hidden">
+                    <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-slate-500 hover:text-slate-700 p-2">
+                        <i data-lucide="menu"></i>
                     </button>
                 </div>
             </div>
         </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200 p-4 space-y-2 shadow-inner absolute w-full left-0 top-16 z-[60]">
+            <a href="index.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-rose-600 bg-rose-50">Home</a>
+            <a href="postyourvacancy.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-rose-50">Post Vacancy</a>
+            <a href="contactus.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-rose-50">Contact Us</a>
+            <hr class="my-2">
+            <div id="auth-section-mobile">
+                <a href="login.html" class="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium">
+                    <i data-lucide="log-in" class="w-4 h-4 text-slate-500"></i>
+                    Log in / Sign in
+                </a>
+            </div>
+        </div>
     </nav>
 
-    <!-- Public View (Similar to categories.html) -->
-    <div id="public-view" class="hidden flex-1 w-full relative">
-        <div id="category-sidebar" class="fixed top-[64px] left-0 h-[calc(100vh-64px)] w-[220px] sm:w-[240px] bg-white shadow-[15px_0_30px_-5px_rgba(0,0,0,0.15)] z-[50] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-r border-slate-200">
-            <button onclick="window.toggleCategorySidebar()" class="absolute -right-[46px] top-12 bg-rose-600 text-white rounded-r-xl shadow-md hover:bg-rose-700 transition-colors flex flex-col items-center justify-center py-6 w-[46px] border border-l-0 border-rose-700 z-[55]">
-                <i id="category-toggle-icon" data-lucide="chevron-right" class="w-5 h-5 mb-3"></i>
-                <span id="category-toggle-text" class="vertical-tab-text font-bold tracking-widest text-xs uppercase">Show Categories</span>
-            </button>
-            <div class="bg-gradient-to-r from-slate-900 to-slate-800 p-5 text-white font-bold flex justify-between items-center shrink-0 border-b-4 border-rose-600">Select Job Category</div>
-            <div class="flex-1 overflow-y-auto bg-slate-50"><ul id="category-list" class="divide-y divide-slate-200"></ul></div>
-        </div>
+    <!-- SLIDING CATEGORY SIDEBAR -->
+    <div id="category-backdrop" class="fixed inset-0 top-[64px] bg-slate-900/60 z-[45] hidden transition-opacity lg:bg-transparent lg:pointer-events-none" onclick="window.toggleCategorySidebar()"></div>
 
-        <div class="max-w-7xl mx-auto px-4 py-8 fade-in">
-            <div class="bg-white p-6 rounded-2xl shadow-xl text-center border border-slate-200 mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800">Looking for your Candidate Profile?</h2>
-                    <p class="text-slate-500 mt-1 text-sm">Sign in with Google to upload your CV and build your profile for employers.</p>
+    <!-- The Drawer (Made Thinner: 220px/240px) -->
+    <div id="category-sidebar" class="fixed top-[64px] left-0 h-[calc(100vh-64px)] w-[220px] sm:w-[240px] bg-white shadow-[15px_0_30px_-5px_rgba(0,0,0,0.15)] z-[50] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-r border-slate-200">
+        
+        <!-- Toggle Tab sticking out on the right edge -->
+        <button onclick="window.toggleCategorySidebar()" class="absolute -right-[46px] top-12 bg-rose-600 text-white rounded-r-xl shadow-[5px_0_10px_-3px_rgba(0,0,0,0.3)] hover:bg-rose-700 transition-colors flex flex-col items-center justify-center py-6 w-[46px] border border-l-0 border-rose-700 pointer-events-auto z-[55]">
+            <i id="category-toggle-icon" data-lucide="chevron-right" class="w-5 h-5 mb-3 transition-transform"></i>
+            <span id="category-toggle-text" class="vertical-tab-text font-bold tracking-widest text-xs uppercase">Show Job Categories</span>
+        </button>
+        
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 p-5 text-white font-bold flex justify-between items-center shrink-0 border-b-4 border-rose-600">
+            Select Job Category
+            <i data-lucide="list-filter" class="w-5 h-5 text-rose-400"></i>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto bg-slate-50">
+            <ul id="category-list" class="divide-y divide-slate-200">
+                <!-- Categories will load dynamically here -->
+                <li class="p-8 text-center text-slate-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-rose-600"></i></li>
+            </ul>
+        </div>
+    </div>
+    <!-- END SIDEBAR -->
+
+    <main class="flex-1 pb-12 flex flex-col pt-6 z-10 relative">
+        <div id="view-home" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in w-full">
+            
+            <!-- Search Bar -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-8 flex flex-col md:flex-row gap-4 relative z-10">
+                <div class="flex-1 relative">
+                    <i data-lucide="search" class="absolute left-4 top-3.5 text-slate-400 w-5 h-5"></i>
+                    <input type="text" placeholder="Search by keywords, job title, or company..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                 </div>
-                <button onclick="window.googleSignIn()" id="public-login-btn" class="flex items-center gap-3 bg-white border border-gray-300 text-slate-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-50 shadow-sm transition-colors whitespace-nowrap">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google"> Sign in with Google
+                <div class="w-full md:w-64 relative">
+                    <input type="text" placeholder="Job Ref Number" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                </div>
+                <button class="bg-rose-600 text-white px-8 py-3 rounded-xl hover:bg-rose-700 font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                    Search <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
             </div>
-            
-            <h2 class="text-2xl font-black text-slate-800 mb-6 flex items-center justify-between">
-                <span>Latest Active Jobs Live <span id="job-count" class="px-3 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full align-middle ml-2">0</span></span>
-            </h2>
-            <div id="job-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                 <div class="col-span-full py-16 text-center text-slate-500"><i data-lucide="loader-2" class="w-10 h-10 animate-spin mx-auto mb-4 text-rose-600"></i></div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Dashboard View -->
-    <div id="dashboard-view" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 fade-in w-full flex-1">
-        <div class="flex flex-col md:flex-row gap-6 h-full">
-            <div class="w-full md:w-64 bg-slate-900 rounded-2xl p-6 text-white shadow-xl flex flex-col flex-shrink-0">
-                <div class="flex flex-col items-center mb-8">
-                    <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-3 border-2 border-white/20 overflow-hidden">
-                        <img id="dash-avatar-img" class="w-full h-full object-cover hidden" src="" alt="Avatar">
+            <!-- Job Listings Container -->
+            <div class="flex-1">
+                <!-- Header with View Toggles -->
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-4">
+                    <h2 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3">
+                        Latest Active Jobs Live
+                        <span id="job-count" class="px-3 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full">0 Jobs</span>
+                    </h2>
+                    
+                    <!-- List vs Grid Toggle -->
+                    <div class="flex bg-slate-100 rounded-lg p-1 border border-slate-200 self-start sm:self-auto">
+                        <button onclick="window.setViewMode('grid')" id="btn-view-grid" class="p-1.5 rounded bg-white shadow-sm text-rose-600 transition-colors" title="Grid View">
+                            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="window.setViewMode('list')" id="btn-view-list" class="p-1.5 rounded text-slate-400 hover:text-slate-600 transition-colors" title="List View">
+                            <i data-lucide="list" class="w-4 h-4"></i>
+                        </button>
                     </div>
-                    <h3 class="font-bold text-lg text-center leading-tight" id="dash-name">Loading...</h3>
-                    <p class="text-slate-400 text-xs text-center break-all mt-1" id="dash-email">...</p>
                 </div>
-                <nav class="space-y-2 flex-1">
-                    <button onclick="window.switchDashTab('overview')" id="nav-overview" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-600 text-white font-medium transition-colors"><i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard</button>
-                    <button onclick="window.switchDashTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-medium transition-colors"><i data-lucide="file-signature" class="w-5 h-5"></i> Personal Details</button>
-                </nav>
-            </div>
-
-            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 overflow-hidden flex flex-col">
-                <div id="tab-overview" class="fade-in space-y-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col items-center justify-center">
-                            <h3 class="font-bold text-slate-700 mb-6 flex items-center gap-2 w-full"><i data-lucide="pie-chart" class="w-5 h-5 text-rose-500"></i> Profile Completeness</h3>
-                            <div class="circular-progress shadow-inner" id="progress-circle"><span class="progress-value" id="progress-text">0%</span></div>
-                            <p class="text-sm text-slate-500 mt-6 text-center">Complete sections to improve score. <a href="#" onclick="window.switchDashTab('profile')" class="text-rose-600 hover:underline">Click Here</a></p>
-                        </div>
-
-                        <div class="rounded-2xl border border-emerald-200 shadow-sm overflow-hidden flex flex-col">
-                            <div class="bg-emerald-600 text-white p-3 px-5 font-bold flex items-center gap-2"><i data-lucide="upload-cloud" class="w-5 h-5"></i> Document Upload</div>
-                            <div class="p-6 bg-emerald-50/30 flex-1 flex flex-col justify-center items-center relative">
-                                <label id="cv-upload-prompt" class="flex flex-col items-center justify-center w-full h-40 border-2 border-emerald-300 border-dashed rounded-xl cursor-pointer bg-white hover:bg-emerald-50 transition-colors">
-                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <i data-lucide="file-up" class="w-10 h-10 mb-3 text-emerald-500"></i>
-                                        <p class="mb-1 text-sm text-emerald-700 font-semibold">Upload your files here</p>
-                                        <p class="text-xs text-emerald-500">PDF, DOC, EXCEL, PHOTOS (Max 750KB)</p>
-                                    </div>
-                                    <input type="file" id="cv-file-input" class="hidden" accept=".pdf, .doc, .docx, .xls, .xlsx, image/png, image/jpeg" />
-                                </label>
-                                <div id="cv-upload-action" class="hidden w-full flex flex-col items-center bg-white p-6 rounded-xl border border-emerald-200">
-                                    <p id="cv-preview-name" class="font-medium text-slate-700 text-center truncate w-full mb-4">document.pdf</p>
-                                    <div class="flex gap-3 w-full">
-                                        <button onclick="window.cancelCVUpload()" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg">Cancel</button>
-                                        <button onclick="window.uploadCV()" id="cv-upload-btn" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg">Upload Now</button>
-                                    </div>
-                                </div>
-                                <div id="cv-upload-success" class="hidden w-full flex flex-col items-center bg-white p-6 rounded-xl border border-emerald-200">
-                                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-2"><i data-lucide="check" class="w-6 h-6 text-emerald-600"></i></div>
-                                    <p class="font-bold text-emerald-700">File Uploaded</p>
-                                    <a href="#" id="cv-download-link" target="_blank" class="text-sm text-emerald-600 hover:underline">View File</a>
-                                    <button onclick="window.resetCVUpload()" class="mt-4 text-xs text-slate-400 hover:underline">Upload a different file</button>
-                                </div>
-                            </div>
-                        </div>
+                
+                <!-- Dynamic Jobs Grid/List -->
+                <div id="job-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div class="col-span-full py-16 text-center text-slate-500 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                        <i data-lucide="loader-2" class="w-10 h-10 animate-spin mx-auto mb-4 text-rose-600"></i>
+                        <p class="font-medium text-lg">Loading active jobs...</p>
                     </div>
                 </div>
 
-                <div id="tab-profile" class="hidden fade-in flex-1 overflow-y-auto pr-2">
-                    <div class="bg-rose-700 text-white px-5 py-3 rounded-t-xl font-bold flex items-center justify-between">Personal Details</div>
-                    <div class="border border-t-0 border-gray-200 rounded-b-xl p-6 bg-slate-50 shadow-inner">
-                        <form id="profile-form" onsubmit="window.saveProfile(event)" class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div class="flex flex-col"><label class="text-xs font-bold text-slate-700 mb-1">Title</label><input type="text" id="pf-title" required class="px-3 py-2 border rounded-lg bg-white"></div>
-                                <div class="flex flex-col md:col-span-1"><label class="text-xs font-bold text-slate-700 mb-1">Last Name</label><input type="text" id="pf-lastname" required class="px-3 py-2 border rounded-lg bg-white"></div>
-                                <div class="flex flex-col md:col-span-1"><label class="text-xs font-bold text-slate-700 mb-1">Other Names</label><input type="text" id="pf-othernames" required class="px-3 py-2 border rounded-lg bg-white"></div>
-                                <div class="flex flex-col md:col-span-1"><label class="text-xs font-bold text-slate-700 mb-1">Initials</label><input type="text" id="pf-initials" required class="px-3 py-2 border rounded-lg bg-white"></div>
-                            </div>
-                            <!-- Reduced for brevity, logic identical to prompt, but ensure IDs match mapping -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="flex flex-col"><label class="text-xs font-bold text-slate-700 mb-1">Telephone</label><input type="tel" id="pf-telephone" required class="px-3 py-2 border rounded-lg bg-white"></div>
-                                <div class="flex flex-col"><label class="text-xs font-bold text-slate-700 mb-1">Expected Salary</label><input type="number" id="pf-salary" required class="px-3 py-2 border rounded-lg bg-white"></div>
-                            </div>
-                            <div class="flex justify-end gap-3 pt-2">
-                                <button type="submit" id="pf-save-btn" class="px-8 py-2.5 rounded-lg font-bold text-white bg-green-600 hover:bg-green-700 transition-colors">SAVE ALL</button>
-                            </div>
-                        </form>
-                    </div>
+                <!-- Pagination Controls -->
+                <div id="pagination-controls" class="mt-8 flex justify-center items-center gap-2 fade-in">
+                    <!-- Injected via JS -->
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div id="toast" class="hidden fixed bottom-4 right-4 z-[80] flex items-center gap-3 text-white px-6 py-4 rounded-xl shadow-2xl transition-all">
-        <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5"></i>
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-6 right-6 z-[80] flex items-center gap-3 text-white px-6 py-4 rounded-xl shadow-2xl transition-all">
+        <i id="toast-icon" data-lucide="check-circle" class="w-6 h-6"></i>
         <span id="toast-message" class="font-medium text-sm">Message</span>
     </div>
 
-    <script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // Initialize Supabase
         const supabaseUrl = 'https://cezyaulwgrgxyjhwyptk.supabase.co';
         const supabaseKey = 'sb_publishable_qslhNTtJ4ZEPooWM3s4c8g_ri8s_OGi';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
         let currentUser = null;
-        let selectedCVFile = null;
-        let isAuthInitialized = false;
+        
+        // Settings for View & Pagination
+        window.allActiveJobs = [];
+        window.currentViewMode = 'grid'; // 'grid' or 'list'
+        window.currentPage = 1;
+        window.jobsPerPage = 30;
 
+        // --- GLOBAL UI FUNCTIONS ---
         window.showToast = (message, type = 'success') => {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').innerText = message;
             document.getElementById('toast-icon').setAttribute('data-lucide', type === 'success' ? 'check-circle' : 'alert-circle');
-            toast.className = `fixed bottom-4 right-4 z-[80] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl fade-in ${type==='success'?'bg-emerald-600':'bg-red-600'} text-white`;
-            lucide.createIcons(); toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 4000);
+            toast.className = `fixed bottom-6 right-6 z-[80] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl fade-in ${type==='success'?'bg-emerald-600':'bg-rose-600'} text-white`;
+            lucide.createIcons();
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
         };
 
-        window.switchDashTab = (tabId) => {
-            document.getElementById('tab-overview').classList.add('hidden');
-            document.getElementById('tab-profile').classList.add('hidden');
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-        };
-
-        window.googleSignIn = async () => {
-            const btn = document.getElementById('public-login-btn');
-            if(btn) btn.innerHTML = "Connecting...";
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: window.location.href }
-            });
-            if (error) {
-                window.showToast("Sign in failed.", "error");
-                if(btn) btn.innerHTML = "Sign in with Google";
-            }
-        };
-
+        // --- AUTH LOGIC ---
         window.handleLogout = async () => {
             await supabase.auth.signOut();
-            window.showToast("Logged out successfully.", "success");
+            window.showToast("Logged out.", "success");
+            window.location.href = 'index.html'; 
         };
 
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            if (!isAuthInitialized) {
-                document.getElementById('initial-loader').classList.add('hidden');
-                isAuthInitialized = true;
-            }
-
-            currentUser = session?.user || null;
-            if (currentUser) {
-                document.getElementById('public-view').classList.add('hidden');
-                document.getElementById('main-nav').classList.remove('hidden');
-                document.getElementById('dashboard-view').classList.remove('hidden');
-                
-                document.getElementById('dash-name').innerText = currentUser.user_metadata?.full_name || "Candidate";
-                document.getElementById('dash-email').innerText = currentUser.email || "";
-                
-                if (currentUser.user_metadata?.avatar_url) {
-                    const img = document.getElementById('dash-avatar-img');
-                    img.src = currentUser.user_metadata.avatar_url;
-                    img.classList.remove('hidden');
-                }
-
-                // Check and init user in DB
-                const { data: userDoc } = await supabase.from('users').select('*').eq('id', currentUser.id).single();
-                if (!userDoc) {
-                    await supabase.from('users').insert([{
-                        id: currentUser.id, email: currentUser.email, name: currentUser.user_metadata?.full_name,
-                        photoURL: currentUser.user_metadata?.avatar_url, profile: {}
-                    }]);
-                }
-                fetchUserProfile();
+        supabase.auth.onAuthStateChange((event, session) => {
+            const user = session?.user || null;
+            currentUser = user;
+            if (user) {
+                const navHtml = `<a href="login.html" class="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors shadow-sm font-medium"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</a>
+                                 <button onclick="window.handleLogout()" class="text-slate-400 hover:text-rose-600 ml-2" title="Logout"><i data-lucide="log-out" class="w-5 h-5"></i></button>`;
+                document.getElementById('auth-section-desktop').innerHTML = navHtml;
+                document.getElementById('auth-section-mobile').innerHTML = navHtml.replace('px-4 py-2', 'w-full px-4 py-2 justify-center');
             } else {
-                document.getElementById('public-view').classList.remove('hidden');
-                document.getElementById('main-nav').classList.add('hidden');
-                document.getElementById('dashboard-view').classList.add('hidden');
-                fetchPublicJobs();
-                loadCategories();
+                const loginBtnHtml = `<a href="login.html" class="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium"><i data-lucide="log-in" class="w-4 h-4 text-slate-500"></i> Log in / Sign in</a>`;
+                document.getElementById('auth-section-desktop').innerHTML = loginBtnHtml;
+                document.getElementById('auth-section-mobile').innerHTML = loginBtnHtml.replace('px-4 py-2', 'w-full px-4 py-2 justify-center');
             }
+            lucide.createIcons();
         });
 
-        const calculateCompleteness = (data) => {
-            if(!data) return 0;
-            const fields = ['title', 'lastName', 'otherNames', 'initials', 'telephone', 'salary'];
-            let filled = 0; fields.forEach(f => { if(data[f]) filled++; });
-            return Math.round((filled / fields.length) * 100);
-        };
-
-        const updateCompletenessUI = (percent) => {
-            document.getElementById('progress-circle').style.background = `conic-gradient(#e11d48 ${percent * 3.6}deg, #f1f5f9 0deg)`;
-            document.getElementById('progress-text').innerText = `${percent}%`;
-        };
-
-        const fetchUserProfile = async () => {
-            const { data } = await supabase.from('users').select('*').eq('id', currentUser.id).single();
-            if (data && data.profile) {
-                ['title', 'lastName', 'otherNames', 'initials', 'telephone', 'salary'].forEach(id => {
-                    if(document.getElementById('pf-'+id) && data.profile[id]) document.getElementById('pf-'+id).value = data.profile[id];
-                });
-                updateCompletenessUI(calculateCompleteness(data.profile));
+        // --- SIDEBAR LOGIC ---
+        window.isCategorySidebarOpen = false;
+        
+        window.toggleCategorySidebar = () => {
+            const sidebar = document.getElementById('category-sidebar');
+            const backdrop = document.getElementById('category-backdrop');
+            const icon = document.getElementById('category-toggle-icon');
+            const text = document.getElementById('category-toggle-text');
+            
+            window.isCategorySidebarOpen = !window.isCategorySidebarOpen;
+            
+            if (window.isCategorySidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+                icon.setAttribute('data-lucide', 'chevron-left');
+                text.innerText = 'HIDE JOB CATEGORIES';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+                icon.setAttribute('data-lucide', 'chevron-right');
+                text.innerText = 'SHOW JOB CATEGORIES';
             }
-            if (data && data.cvUrl) {
-                showCVSuccessUI(data.cvName, data.cvUrl);
-            }
-        };
-
-        window.saveProfile = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('pf-save-btn'); btn.innerText = 'Saving...';
-            const profileData = {
-                title: document.getElementById('pf-title').value, lastName: document.getElementById('pf-lastname').value,
-                otherNames: document.getElementById('pf-othernames').value, initials: document.getElementById('pf-initials').value,
-                telephone: document.getElementById('pf-telephone').value, salary: document.getElementById('pf-salary').value,
-            };
-            try {
-                await supabase.from('users').update({ profile: profileData }).eq('id', currentUser.id);
-                window.showToast("Profile details saved!");
-                updateCompletenessUI(calculateCompleteness(profileData));
-            } catch(err) { window.showToast("Error saving.", "error"); }
-            finally { btn.innerText = 'SAVE ALL'; }
-        };
-
-        document.getElementById('cv-file-input').addEventListener('change', (e) => {
-            const file = e.target.files[0]; if (!file) return;
-            if (file.size > 768000) { window.showToast("Max size 750KB.", "error"); return; }
-            selectedCVFile = file;
-            document.getElementById('cv-preview-name').textContent = file.name;
-            document.getElementById('cv-upload-prompt').classList.add('hidden');
-            document.getElementById('cv-upload-action').classList.remove('hidden');
-        });
-
-        window.cancelCVUpload = () => {
-            selectedCVFile = null; document.getElementById('cv-file-input').value = '';
-            document.getElementById('cv-upload-action').classList.add('hidden');
-            document.getElementById('cv-upload-prompt').classList.remove('hidden');
-        };
-
-        window.resetCVUpload = () => { window.cancelCVUpload(); document.getElementById('cv-upload-success').classList.add('hidden'); };
-
-        const showCVSuccessUI = (fileName, url) => {
-            document.getElementById('cv-upload-prompt').classList.add('hidden');
-            document.getElementById('cv-upload-action').classList.add('hidden');
-            document.getElementById('cv-download-link').href = url;
-            document.getElementById('cv-upload-success').classList.remove('hidden');
-        };
-
-        window.uploadCV = async () => {
-            if (!selectedCVFile) return;
-            const btn = document.getElementById('cv-upload-btn'); btn.innerText = 'Uploading...';
-            const reader = new FileReader();
-            reader.onload = async () => {
-                try {
-                    await supabase.from('users').update({ cvUrl: reader.result, cvName: selectedCVFile.name, cvUploadedAt: new Date().toISOString() }).eq('id', currentUser.id);
-                    window.showToast("File Saved!"); showCVSuccessUI(selectedCVFile.name, reader.result);
-                } catch (e) { window.showToast("Error: " + e.message, "error"); }
-                finally { btn.innerText = 'Upload Now'; }
-            };
-            reader.readAsDataURL(selectedCVFile);
-        };
-
-        const fetchPublicJobs = async () => {
-            const { data } = await supabase.from('vacancies').select('*').eq('status', 'active').order('createdAt', { ascending: false }).limit(6);
-            if(data) {
-                document.getElementById('job-count').innerText = data.length;
-                document.getElementById('job-grid').innerHTML = data.map(job => `
-                    <a href="job-details.html?id=${job.id}" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl transition-all relative group overflow-hidden block">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-200 to-rose-400 group-hover:from-rose-500"></div>
-                        <h3 class="text-xl font-bold text-slate-800 mt-2 mb-2">${job.title || job.position || 'Untitled'}</h3>
-                        <div class="text-sm text-slate-600 mb-4"><i data-lucide="building" class="w-4 h-4 inline mr-1"></i>${job.companyName || 'Unknown'}</div>
-                        <span class="px-3 py-1 bg-rose-50 text-rose-700 text-[10px] font-bold rounded-lg uppercase">${job.jobCategory || 'General'}</span>
-                    </a>
-                `).join('');
-                lucide.createIcons();
-            }
+            lucide.createIcons();
         };
 
         const loadCategories = async () => {
-            const { data } = await supabase.from('settings').select('*').eq('id', 'form_options').single();
-            if(data && data.categories) {
-                document.getElementById('category-list').innerHTML = `<li><a href="categories.html" class="block px-6 py-4 text-sm font-bold text-slate-700 hover:bg-slate-100">All Active Jobs</a></li>` + 
-                data.categories.map(cat => `<li><a href="categories.html?category=${encodeURIComponent(cat)}" class="block px-6 py-4 text-sm font-bold text-slate-700 hover:bg-slate-100">${cat}</a></li>`).join('');
+            try {
+                const { data: settingsDoc, error } = await supabase.from('settings').select('*').eq('id', 'form_options').single();
+                let categories = ["Engineering", "Sales", "Marketing", "IT & Software", "Administration"]; // fallback
+                if (settingsDoc && settingsDoc.categories) {
+                    categories = settingsDoc.categories;
+                }
+                
+                const catList = document.getElementById('category-list');
+                const activeClasses = 'bg-rose-100 text-rose-800 border-l-4 border-rose-600 shadow-inner';
+                const inactiveClasses = 'border-l-4 border-transparent text-slate-700 hover:bg-slate-100';
+                
+                // Uses categories.html to handle category views exactly as requested
+                let html = `<li><a href="index.html" class="block px-6 py-4 text-sm font-bold transition-all ${activeClasses}">All Active Jobs</a></li>`;
+                
+                categories.forEach(cat => {
+                    html += `<li>
+                                <a href="categories.html?category=${encodeURIComponent(cat)}" target="_blank" class="flex justify-between items-center px-6 py-4 text-sm font-bold transition-all ${inactiveClasses}">
+                                    ${cat}
+                                </a>
+                             </li>`;
+                });
+                
+                catList.innerHTML = html;
+                lucide.createIcons();
+            } catch (err) {
+                console.error("Error loading categories:", err);
             }
         };
-        
-        window.toggleCategorySidebar = () => {
-            const sb = document.getElementById('category-sidebar');
-            sb.classList.toggle('-translate-x-full');
+
+        // --- VIEW MODE & PAGINATION LOGIC ---
+        window.setViewMode = (mode) => {
+            window.currentViewMode = mode;
+            
+            // Update button styles
+            const btnGrid = document.getElementById('btn-view-grid');
+            const btnList = document.getElementById('btn-view-list');
+            
+            if (mode === 'grid') {
+                btnGrid.className = 'p-1.5 rounded bg-white shadow-sm text-rose-600 transition-colors';
+                btnList.className = 'p-1.5 rounded text-slate-400 hover:text-slate-600 transition-colors';
+            } else {
+                btnList.className = 'p-1.5 rounded bg-white shadow-sm text-rose-600 transition-colors';
+                btnGrid.className = 'p-1.5 rounded text-slate-400 hover:text-slate-600 transition-colors';
+            }
+            
+            // Re-render the current page
+            window.renderJobs();
         };
 
+        window.changePage = (page) => {
+            window.currentPage = page;
+            window.renderJobs();
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top smoothly
+        };
+
+        const renderPagination = (totalPages) => {
+            const container = document.getElementById('pagination-controls');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            
+            // Previous Button
+            html += `<button onclick="window.changePage(${window.currentPage - 1})" ${window.currentPage === 1 ? 'disabled class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"'}><i data-lucide="chevron-left" class="w-4 h-4"></i></button>`;
+            
+            // Sliding Window for Page Numbers (max 5 buttons shown)
+            let startPage = Math.max(1, window.currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === window.currentPage) {
+                    html += `<button class="px-4 py-1.5 rounded-lg bg-rose-600 text-white font-bold shadow-sm">${i}</button>`;
+                } else {
+                    html += `<button onclick="window.changePage(${i})" class="px-4 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors font-medium">${i}</button>`;
+                }
+            }
+
+            // Next Button
+            html += `<button onclick="window.changePage(${window.currentPage + 1})" ${window.currentPage === totalPages ? 'disabled class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"'}><i data-lucide="chevron-right" class="w-4 h-4"></i></button>`;
+            
+            container.innerHTML = html;
+            lucide.createIcons();
+        };
+
+        // --- RENDERING LOGIC ---
+        window.renderJobs = () => {
+            const gridContainer = document.getElementById('job-grid');
+            let filteredJobs = window.allActiveJobs;
+            
+            const totalJobs = filteredJobs.length;
+            document.getElementById('job-count').innerText = `${totalJobs} Job${totalJobs !== 1 ? 's' : ''}`;
+            
+            if(totalJobs === 0) {
+                gridContainer.className = 'grid grid-cols-1';
+                gridContainer.innerHTML = `<div class="col-span-full py-20 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="search-x" class="w-8 h-8 text-slate-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-700 mb-1">No vacancies found</h3>
+                    <p class="text-slate-500 text-sm">There are currently no active jobs in the system.</p>
+                </div>`;
+                document.getElementById('pagination-controls').innerHTML = '';
+                lucide.createIcons();
+                return;
+            }
+
+            // Calculations for Pagination
+            const totalPages = Math.ceil(totalJobs / window.jobsPerPage);
+            if (window.currentPage > totalPages) window.currentPage = totalPages || 1;
+            
+            const startIndex = (window.currentPage - 1) * window.jobsPerPage;
+            const paginatedJobs = filteredJobs.slice(startIndex, startIndex + window.jobsPerPage);
+
+            // Layout Settings
+            if (window.currentViewMode === 'grid') {
+                gridContainer.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6';
+            } else {
+                gridContainer.className = 'flex flex-col gap-4';
+            }
+
+            gridContainer.innerHTML = paginatedJobs.map(job => {
+                
+                // Format Dates
+                let openingDate = 'N/A';
+                if(job.createdAt) openingDate = new Date(job.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                
+                let closingDate = 'N/A';
+                if(job.expiresAt) {
+                    closingDate = new Date(job.expiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                } else if (job.createdAt) {
+                    const d = new Date(job.createdAt);
+                    d.setDate(d.getDate() + 14); // Fallback: +14 days
+                    closingDate = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+
+                // GRID VIEW HTML
+                if (window.currentViewMode === 'grid') {
+                    return `
+                        <a href="job-details.html?id=${job.id}" target="_blank" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-rose-300 cursor-pointer transition-all duration-300 flex flex-col relative group overflow-hidden block">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-200 to-slate-300 group-hover:from-rose-500 group-hover:to-orange-400 transition-all duration-300"></div>
+                            
+                            <div class="flex-1 mt-2">
+                                <h3 class="text-xl font-bold text-slate-800 group-hover:text-rose-600 line-clamp-2 leading-tight mb-3">${job.title || job.position || 'Untitled Position'}</h3>
+                                <div class="text-sm font-semibold text-slate-600 flex items-center gap-2 mb-1.5">
+                                    <i data-lucide="building" class="w-4 h-4 text-slate-400 shrink-0"></i> ${job.company || job.companyName || 'Unknown Company'}
+                                </div>
+                                <div class="text-sm text-slate-500 flex items-center gap-2 mb-4">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-slate-400 shrink-0"></i> ${job.district || job.location || 'Sri Lanka'}
+                                </div>
+                                ${job.jobCategory ? `<span class="inline-block px-3 py-1 bg-rose-50 border border-rose-100 text-rose-700 text-[10px] font-bold rounded-lg uppercase tracking-wider">${job.jobCategory}</span>` : ''}
+                            </div>
+                            
+                            <!-- Prominent Date Footer -->
+                            <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col gap-2 -mx-6 -mb-6 px-6 py-4 bg-slate-50 group-hover:bg-rose-50/30 transition-colors">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-slate-500 font-medium flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i> Opened:</span>
+                                    <span class="font-bold text-slate-700">${openingDate}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-rose-600 font-medium flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> Closes:</span>
+                                    <span class="font-bold text-rose-700">${closingDate}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                } 
+                // LIST VIEW HTML
+                else {
+                    return `
+                        <a href="job-details.html?id=${job.id}" target="_blank" class="bg-white rounded-xl p-4 md:p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-rose-300 cursor-pointer transition-all flex flex-col md:flex-row gap-4 md:items-center relative group overflow-hidden block">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-slate-200 to-slate-300 group-hover:from-rose-500 group-hover:to-orange-400 transition-all duration-300"></div>
+                            
+                            <div class="flex-1 pl-3">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-rose-600 leading-tight mb-1 pr-2">${job.title || job.position || 'Untitled Position'}</h3>
+                                    ${job.jobCategory ? `<span class="hidden md:inline-block px-2 py-1 bg-rose-50 border border-rose-100 text-rose-700 text-[10px] font-bold rounded flex-shrink-0 uppercase tracking-wider whitespace-nowrap ml-2">${job.jobCategory}</span>` : ''}
+                                </div>
+                                
+                                <div class="flex flex-wrap gap-x-6 gap-y-1 mt-1 text-sm text-slate-600 font-medium">
+                                    <span class="flex items-center gap-1.5"><i data-lucide="building" class="w-4 h-4 text-slate-400"></i> ${job.company || job.companyName || 'Unknown Company'}</span>
+                                    <span class="flex items-center gap-1.5"><i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> ${job.district || job.location || 'Sri Lanka'}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 md:mt-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 flex flex-row md:flex-col justify-between md:justify-center md:items-end gap-1 md:w-48 flex-shrink-0">
+                                <div class="text-xs text-slate-500 font-medium"><span class="md:hidden">Opened: </span>${openingDate}</div>
+                                <div class="text-sm font-bold text-rose-600 flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> <span class="md:hidden">Closes: </span>${closingDate}</div>
+                            </div>
+                        </a>
+                    `;
+                }
+
+            }).join('');
+            
+            renderPagination(totalPages);
+            lucide.createIcons();
+        };
+
+        const fetchJobs = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('vacancies')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('createdAt', { ascending: false });
+                    
+                if (error) throw error;
+
+                if (data) {
+                    window.allActiveJobs = data;
+                    if (window.currentPage > Math.ceil(window.allActiveJobs.length / window.jobsPerPage)) {
+                        window.currentPage = 1;
+                    }
+                    window.renderJobs();
+                }
+            } catch (error) {
+                console.error("Error loading jobs:", error);
+                document.getElementById('job-grid').innerHTML = '<div class="col-span-full p-8 text-center text-rose-500 bg-rose-50 rounded-xl">Could not load jobs. Please check database permissions.</div>';
+            }
+        };
+
+        const subscribeToJobs = () => {
+            try {
+                supabase.channel('public:vacancies')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'vacancies', filter: 'status=eq.active' }, payload => {
+                        fetchJobs(); 
+                    })
+                    .subscribe();
+            } catch (e) {
+                console.warn("Realtime not supported in this environment, falling back to manual refresh.", e);
+            }
+        };
+
+        // Initialize UI
+        fetchJobs();
+        subscribeToJobs();
+        loadCategories();
         lucide.createIcons();
     </script>
 </body>
