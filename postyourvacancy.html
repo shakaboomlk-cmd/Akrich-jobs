@@ -6,14 +6,18 @@
     <title>Post Your Vacancy - LankaJobs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .slide-up { animation: slideUp 0.4s ease-out; }
+        
+        /* Custom radio and checkbox colors */
         .accent-rose { accent-color: #e11d48; }
+        
+        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans selection:bg-rose-200 selection:text-rose-900 min-h-screen flex flex-col">
@@ -31,7 +35,7 @@
                 </div>
                 <div class="hidden md:flex sm:items-center sm:space-x-4">
                     <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Home</a>
-                    <a href="postyourvacancy.html" class="px-3 py-2 rounded-md text-sm font-bold text-rose-600 bg-rose-50 transition-colors">Post Your Vacancy</a>
+                    <a href="post_vacancy.html" class="px-3 py-2 rounded-md text-sm font-bold text-rose-600 bg-rose-50 transition-colors">Post Your Vacancy</a>
                     <a href="contactus.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Contact Us</a>
                 </div>
             </div>
@@ -39,174 +43,415 @@
     </nav>
 
     <main class="flex-1 pb-12 pt-8 max-w-5xl mx-auto px-4 w-full slide-up">
+        
         <div class="bg-blue-50 border border-blue-200 p-6 rounded-2xl mb-8 flex items-start gap-4 shadow-sm">
             <div class="bg-blue-100 p-3 rounded-xl hidden sm:block">
                 <i data-lucide="megaphone" class="w-6 h-6 text-blue-700"></i>
             </div>
             <div>
                 <h3 class="text-lg font-bold text-blue-900 mb-1">topAd Package</h3>
-                <p class="text-blue-800 text-sm">Attach your artwork and enter details below to publish your vacancy directly to Supabase.</p>
+                <p class="text-blue-800 text-sm">Rs. 6,400 per vacancy. Duration: 14 days. Attach your artwork and enter contact details below to publish your vacancy.</p>
             </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-10">
             <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-8 text-white text-center border-b-4 border-rose-600">
                 <h2 class="text-3xl font-bold mb-2 tracking-tight">Publish Your Vacancy</h2>
+                <p class="text-slate-300 text-sm max-w-2xl mx-auto">Fill out the details below accurately. Our moderation team will review and publish your listing shortly after submission.</p>
             </div>
             
             <form id="job-form" class="p-6 sm:p-10 space-y-10">
+                
                 <section>
-                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-200 pb-3">Client Info</h3>
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-200 pb-3">
+                        <div class="bg-rose-100 p-2 rounded-lg"><i data-lucide="building-2" class="text-rose-600 w-5 h-5"></i></div> Client Info
+                    </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex flex-col md:col-span-2">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Company Name *</label>
-                            <input type="text" id="companyName" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Company Name <span class="text-rose-500">*</span></label>
+                            <input type="text" id="companyName" required placeholder="e.g. Acme Corp" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Contact Email *</label>
-                            <input type="email" id="clientEmail" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Contact Email <span class="text-rose-500">*</span></label>
+                            <input type="email" id="clientEmail" required placeholder="name@company.com" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Contact Number *</label>
-                            <input type="tel" id="contactNumber" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Contact Person <span class="text-rose-500">*</span></label>
+                            <input type="text" id="contactPerson" required placeholder="e.g. Jane Doe" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Contact Number <span class="text-rose-500">*</span></label>
+                            <input type="tel" id="contactNumber" required placeholder="e.g. 077 123 4567" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                        </div>
+                        <div class="flex flex-col md:col-span-2">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Company Address <span class="text-rose-500">*</span></label>
+                            <textarea id="companyAddress" required rows="2" placeholder="Full postal address..." class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow resize-y"></textarea>
+                        </div>
+                        
+                        <!-- UPDATED: Limits increased to 5MB visually -->
+                        <div class="flex flex-col">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Business Registration (Max 5MB) <span class="text-rose-500">*</span></label>
+                            <input type="file" id="businessReg" required accept=".pdf, image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100 cursor-pointer border border-gray-200 rounded-xl bg-slate-50">
+                            <span class="text-xs text-slate-500 mt-1">Required for new clients. PDF or Image.</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">VAT Certificate (Optional, Max 5MB)</label>
+                            <input type="file" id="vatCert" accept=".pdf, image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300 cursor-pointer border border-gray-200 rounded-xl bg-slate-50">
                         </div>
                     </div>
                 </section>
 
                 <section>
-                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-200 pb-3">Job Details</h3>
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-200 pb-3">
+                        <div class="bg-rose-100 p-2 rounded-lg"><i data-lucide="briefcase" class="text-rose-600 w-5 h-5"></i></div> Job Details
+                    </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex flex-col md:col-span-2">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Position *</label>
-                            <input type="text" id="position" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Position / Designation <span class="text-rose-500">*</span></label>
+                            <input type="text" id="position" required placeholder="e.g. Senior Software Engineer" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Job Category *</label>
-                            <select id="jobCategory" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none">
-                                <option value="">Select</option>
+                            <label class="text-sm font-semibold text-slate-700 mb-1">No. of Positions <span class="text-rose-500">*</span></label>
+                            <input type="number" id="numPositions" required min="1" placeholder="e.g. 3" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Company / Industry <span class="text-rose-500">*</span></label>
+                            <select id="industry" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                                <option value="">Select Industry</option>
+                                <option value="IT & Software">IT & Software</option>
+                                <option value="Banking & Finance">Banking & Finance</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Retail">Retail</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col md:col-span-2">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Job Category <span class="text-rose-500">*</span></label>
+                            <select id="jobCategory" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                                <option value="">Select Category</option>
                                 <option value="Engineering">Engineering</option>
                                 <option value="Sales">Sales</option>
                                 <option value="Marketing">Marketing</option>
+                                <option value="Operations">Operations</option>
                                 <option value="Administration">Administration</option>
-                                <option value="IT & Software">IT & Software</option>
                             </select>
                         </div>
-                        <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-3">Job Type *</label>
-                            <div class="flex flex-wrap gap-4 bg-slate-50 p-4 border border-gray-200 rounded-xl">
-                                <label class="flex items-center gap-2 text-sm"><input type="radio" name="jobType" value="Full Time" checked class="accent-rose"> Full Time</label>
-                                <label class="flex items-center gap-2 text-sm"><input type="radio" name="jobType" value="Part Time" class="accent-rose"> Part Time</label>
+                        <div class="flex flex-col md:col-span-2">
+                            <label class="text-sm font-semibold text-slate-700 mb-3">Job Type <span class="text-rose-500">*</span></label>
+                            <div class="flex flex-wrap gap-6 bg-slate-50 p-4 border border-gray-200 rounded-xl">
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="jobType" value="Full Time" checked class="accent-rose w-4 h-4"> Full Time</label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="jobType" value="Part Time" class="accent-rose w-4 h-4"> Part Time</label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="jobType" value="Internship" class="accent-rose w-4 h-4"> Internship</label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="jobType" value="Contract" class="accent-rose w-4 h-4"> Contract</label>
                             </div>
                         </div>
                         <div class="flex flex-col md:col-span-2">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Vacancy Summary *</label>
-                            <textarea id="vacancySummary" required rows="4" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none"></textarea>
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Vacancy Summary <span class="text-rose-500">*</span></label>
+                            <textarea id="vacancySummary" required rows="4" placeholder="Briefly describe the role, requirements, and benefits..." class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow resize-y"></textarea>
                         </div>
+                        
+                        <!-- UPDATED: Artwork limit increased to 5MB -->
                         <div class="flex flex-col md:col-span-2">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Artwork File (Optional, max 750KB)</label>
-                            <input type="file" id="artworkFiles" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl outline-none">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Vacancy Artwork (Max 5MB)</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-slate-50 flex flex-col items-center justify-center relative hover:bg-slate-100 transition-colors">
+                                <i data-lucide="image-plus" class="w-8 h-8 text-slate-400 mb-2"></i>
+                                <span class="text-sm font-medium text-slate-600 text-center mb-1">Click to upload artwork file</span>
+                                <span class="text-xs text-slate-400">PDF, JPG, PNG allowed (Max 5MB)</span>
+                                <input type="file" id="artworkFiles" accept=".pdf, image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            </div>
+                            <p id="artwork-list" class="text-xs text-rose-600 mt-2 font-medium hidden"></p>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Country</label>
+                            <select id="country" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                                <option value="Sri Lanka">Sri Lanka</option>
+                                <option value="Maldives">Maldives</option>
+                                <option value="UAE">UAE</option>
+                                <option value="Qatar">Qatar</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">District <span class="text-rose-500">*</span></label>
+                            <input type="text" id="district" required placeholder="e.g. Colombo" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                     </div>
                 </section>
 
                 <section>
-                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-200 pb-3">Routing</h3>
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-200 pb-3">
+                        <div class="bg-rose-100 p-2 rounded-lg"><i data-lucide="send" class="text-rose-600 w-5 h-5"></i></div> Application Routing
+                    </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">App URL Link</label>
-                            <input type="url" id="appLink" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl outline-none">
+                        <div class="flex flex-col md:col-span-2">
+                            <label class="text-sm font-semibold text-slate-700 mb-3">How should candidates apply? <span class="text-rose-500">*</span></label>
+                            <div class="flex flex-wrap gap-6 bg-slate-50 p-4 border border-gray-200 rounded-xl">
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="appMethod" value="Via Email" checked class="accent-rose w-4 h-4"> Via Email</label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="appMethod" value="Walk-in" class="accent-rose w-4 h-4"> Walk-in</label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="appMethod" value="Via Link" class="accent-rose w-4 h-4"> Via Website Link</label>
+                            </div>
                         </div>
-                        <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Destination Email *</label>
-                            <input type="email" id="destinationEmail" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none">
+                        
+                        <!-- Conditional Input for Link -->
+                        <div class="flex flex-col md:col-span-2 hidden slide-up" id="linkContainer">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Application URL / Link <span class="text-rose-500">*</span></label>
+                            <input type="url" id="appLink" placeholder="https://careers.yourcompany.com/apply" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                        </div>
+
+                        <div class="flex flex-col md:col-span-2">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Destination Email (To receive CVs) <span class="text-rose-500">*</span></label>
+                            <input type="email" id="destinationEmail" required placeholder="e.g. careers@acmecorp.com" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                     </div>
                 </section>
 
+                <section>
+                    <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-200 pb-3">
+                        <div class="bg-rose-100 p-2 rounded-lg"><i data-lucide="credit-card" class="text-rose-600 w-5 h-5"></i></div> Payment & Finalization
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- UPDATED: Payment Slip limit increased to 5MB -->
+                        <div class="flex flex-col md:col-span-2">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Payment Slip (Max 5MB)</label>
+                            <input type="file" id="paymentSlip" accept=".pdf, image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-gray-200 rounded-xl bg-slate-50">
+                        </div>
+                        <div class="flex flex-col md:col-span-2">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Special Remarks</label>
+                            <textarea id="specialRemarks" rows="2" placeholder="Any additional notes for our moderation team..." class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow resize-y"></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="bg-slate-100 p-6 rounded-xl border border-slate-200">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="privacyConsent" required class="mt-1 w-5 h-5 accent-rose rounded border-gray-300 focus:ring-rose-500">
+                        <span class="text-sm text-slate-700 leading-relaxed">
+                            <strong>Privacy Consent:</strong> By checking this box, I confirm that I agree to LankaJobs processing the provided data to publish this vacancy. I guarantee that the information provided is accurate and complies with local labor laws.
+                        </span>
+                    </label>
+                </div>
+
                 <div class="pt-2 flex justify-end">
-                    <button type="submit" id="submit-btn" class="w-full md:w-auto px-12 py-4 rounded-xl bg-rose-600 text-white font-bold text-lg hover:bg-rose-700 shadow-lg shadow-rose-600/30 transition-all">Submit Vacancy</button>
+                    <button type="submit" id="submit-btn" class="w-full md:w-auto px-12 py-4 rounded-xl bg-rose-600 text-white font-bold text-lg hover:bg-rose-700 shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-2">
+                        Submit Vacancy <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
                 </div>
             </form>
         </div>
     </main>
 
-    <div id="toast" class="hidden fixed bottom-6 right-6 z-[60] flex items-center gap-3 text-white px-6 py-4 rounded-xl shadow-2xl transition-all">
-        <i id="toast-icon" data-lucide="check-circle" class="w-6 h-6"></i><span id="toast-message" class="font-medium">Message</span>
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-6 right-6 z-[60] flex items-center gap-3 text-white px-6 py-4 rounded-xl shadow-2xl transition-all max-w-sm">
+        <i id="toast-icon" data-lucide="check-circle" class="w-6 h-6"></i>
+        <span id="toast-message" class="font-medium">Message</span>
     </div>
 
-    <script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // Supabase API Credentials
         const SUPABASE_URL = 'https://cezyaulwgrgxyjhwyptk.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_qslhNTtJ4ZEPooWM3s4c8g_ri8s_OGi';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_qslhNTtJ4ZEPooWM3s4c8g_ri8s_OGi';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        
         lucide.createIcons();
 
         const showToast = (message, type = 'success') => {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').innerText = message;
             document.getElementById('toast-icon').setAttribute('data-lucide', type === 'success' ? 'check-circle' : 'alert-triangle');
-            toast.className = `fixed bottom-6 right-6 z-[60] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl slide-up ${type==='success'?'bg-emerald-600':'bg-rose-600'} text-white`;
+            toast.className = `fixed bottom-6 right-6 z-[60] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl slide-up ${type==='success'?'bg-emerald-600':'bg-rose-600'} text-white max-w-sm`;
             lucide.createIcons();
             toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 5000);
+            setTimeout(() => toast.classList.add('hidden'), 6000);
         };
+
+        // Handle Conditional Routing Input (Show Link field if "Via Link" is selected)
+        const appMethods = document.getElementsByName('appMethod');
+        const linkContainer = document.getElementById('linkContainer');
+        const appLinkInput = document.getElementById('appLink');
+
+        appMethods.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if(e.target.value === 'Via Link') {
+                    linkContainer.classList.remove('hidden');
+                    appLinkInput.required = true;
+                } else {
+                    linkContainer.classList.add('hidden');
+                    appLinkInput.required = false;
+                    appLinkInput.value = '';
+                }
+            });
+        });
+
+        // Display selected artwork files names
+        document.getElementById('artworkFiles').addEventListener('change', function(e) {
+            const list = document.getElementById('artwork-list');
+            if(this.files.length > 0) {
+                let names = Array.from(this.files).map(f => f.name).join(', ');
+                list.innerText = `Selected: ${names}`;
+                list.classList.remove('hidden');
+            } else {
+                list.classList.add('hidden');
+            }
+        });
+
+        // UPDATED HELPER: Converts file and ensures it is under 5MB (5,242,880 bytes) limit
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB limit
 
         const readFileAsBase64 = (file) => {
             return new Promise((resolve, reject) => {
-                if (!file) { resolve(null); return; }
-                if (file.size > 768000) { reject(new Error("File too large. Max 750KB.")); return; }
+                if (!file) {
+                    resolve(null);
+                    return;
+                }
+                
+                if (file.size > MAX_FILE_SIZE) { 
+                    reject(new Error(`File "${file.name}" exceeds the maximum allowed size of 5MB.`));
+                    return;
+                }
+                
                 const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
+                reader.onload = () => resolve({
+                    name: file.name,
+                    data: reader.result,
+                    type: file.type,
+                    size: file.size,
+                    rawFile: file
+                });
                 reader.onerror = (error) => reject(error);
                 reader.readAsDataURL(file);
             });
         };
 
+        // Form Submission
         document.getElementById('job-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const btn = document.getElementById('submit-btn');
-            btn.innerHTML = 'Processing...'; btn.disabled = true;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing...';
+            btn.disabled = true;
+            lucide.createIcons();
 
             try {
-                let artworkBase64 = null;
-                const fileInput = document.getElementById('artworkFiles');
-                if(fileInput.files.length > 0) {
-                    artworkBase64 = await readFileAsBase64(fileInput.files[0]);
+                // 1. Process files first to catch size errors early (5MB limit check)
+                let businessRegFile, vatCertFile, artworkFile, paymentSlipFile;
+                
+                try {
+                    businessRegFile = await readFileAsBase64(document.getElementById('businessReg').files[0]);
+                    vatCertFile = await readFileAsBase64(document.getElementById('vatCert').files[0]);
+                    artworkFile = await readFileAsBase64(document.getElementById('artworkFiles').files[0]);
+                    paymentSlipFile = await readFileAsBase64(document.getElementById('paymentSlip').files[0]);
+                } catch (fileError) {
+                    showToast(fileError.message, "error");
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                    lucide.createIcons();
+                    return;
                 }
 
+                // Generate Master Vacancy UUID
+                const masterVacancyId = crypto.randomUUID ? crypto.randomUUID() : 'vac_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+
+                // 2. Gather Text Data for Supabase
                 const vacancyData = {
+                    id: masterVacancyId,
                     companyName: document.getElementById('companyName').value,
                     clientEmail: document.getElementById('clientEmail').value,
+                    contactPerson: document.getElementById('contactPerson').value,
                     contactNumber: document.getElementById('contactNumber').value,
+                    companyAddress: document.getElementById('companyAddress').value,
+                    
                     position: document.getElementById('position').value,
+                    numPositions: document.getElementById('numPositions').value,
+                    industry: document.getElementById('industry').value,
                     jobCategory: document.getElementById('jobCategory').value,
                     jobType: document.querySelector('input[name="jobType"]:checked').value,
                     vacancySummary: document.getElementById('vacancySummary').value,
+                    country: document.getElementById('country').value,
+                    district: document.getElementById('district').value,
+                    
+                    applicationMethod: document.querySelector('input[name="appMethod"]:checked').value,
                     applicationLink: document.getElementById('appLink').value || null,
                     destinationEmail: document.getElementById('destinationEmail').value,
-                    status: 'pending_review'
+                    
+                    specialRemarks: document.getElementById('specialRemarks').value,
+                    
+                    status: 'pending_review',
+                    createdAt: new Date().toISOString()
                 };
 
-                const { data, error } = await supabase.from('ackrich-jobs').insert([vacancyData]).select();
-                if (error) throw error;
-                const newId = data[0].id;
+                // 3. Save Text Data to Supabase 'vacancies' table
+                const { error: vacancyErr } = await supabase
+                    .from('vacancies')
+                    .insert([vacancyData]);
 
-                if (artworkBase64) {
-                    const { error: fileErr } = await supabase.from('vacancy_files').insert([{
-                        vacancyId: newId,
-                        fileType: 'Artwork',
-                        fileName: fileInput.files[0].name,
-                        fileData: artworkBase64
-                    }]);
-                    if(fileErr) console.log("File insertion note:", fileErr.message);
+                if (vacancyErr) {
+                    throw new Error(vacancyErr.message || "Failed to create vacancy record in Supabase database.");
+                }
+
+                // 4. Upload files to Supabase Storage and log in 'vacancy_files' table
+                const filesToUpload = [
+                    { fileObj: businessRegFile, type: "Business Registration" },
+                    { fileObj: vatCertFile, type: "VAT Certificate" },
+                    { fileObj: artworkFile, type: "Vacancy Artwork" },
+                    { fileObj: paymentSlipFile, type: "Payment Slip" }
+                ].filter(item => item.fileObj !== null);
+
+                for (const item of filesToUpload) {
+                    const { fileObj, type } = item;
+                    const cleanFileName = fileObj.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+                    const filePath = `${masterVacancyId}/${type.replace(/\s+/g, '_')}_${Date.now()}_${cleanFileName}`;
+
+                    let publicUrl = null;
+
+                    // Upload file to Supabase Storage Bucket 'vacancy_files'
+                    try {
+                        const { data: uploadData, error: storageErr } = await supabase.storage
+                            .from('vacancy_files')
+                            .upload(filePath, fileObj.rawFile, { upsert: true });
+
+                        if (!storageErr && uploadData) {
+                            const { data: urlData } = supabase.storage
+                                .from('vacancy_files')
+                                .getPublicUrl(filePath);
+                            publicUrl = urlData?.publicUrl || null;
+                        }
+                    } catch (e) {
+                        console.warn('Storage bucket upload fallback:', e);
+                    }
+
+                    // Log File Metadata to Supabase Database Table 'vacancy_files'
+                    const fileRecord = {
+                        id: crypto.randomUUID ? crypto.randomUUID() : 'file_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
+                        vacancyId: masterVacancyId,
+                        fileType: type,
+                        fileName: fileObj.name,
+                        fileUrl: publicUrl,
+                        fileData: fileObj.data, // Base64 backup payload
+                        uploadedAt: new Date().toISOString()
+                    };
+
+                    await supabase.from('vacancy_files').insert([fileRecord]);
                 }
                 
-                showToast("Vacancy Submitted to Supabase Successfully!");
+                showToast("Vacancy Submitted Successfully! Our team will review it shortly.");
+                
+                // Reset form and UI
                 e.target.reset();
+                document.getElementById('linkContainer').classList.add('hidden');
+                document.getElementById('artwork-list').classList.add('hidden');
+                
             } catch (error) {
-                console.error(error);
-                showToast("Failed to submit. " + error.message, "error");
+                console.error("Submission Error: ", error);
+                showToast("Failed to submit. " + (error.message || "Please check Supabase rules/connection."), "error");
             } finally {
-                btn.innerHTML = 'Submit Vacancy'; btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                lucide.createIcons();
             }
         });
     </script>
