@@ -427,14 +427,13 @@
                     }
 
                     // Log File Metadata to Supabase Database Table 'vacancy_files'
+                    // Match EXACT column names from your screenshot: vacancyId, fileType, fileName, fileData, uploadedAt
                     const fileRecord = {
                         id: crypto.randomUUID ? crypto.randomUUID() : 'file_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
-                        vacancyId: masterVacancyId, // Make sure this casing matches your column (e.g. if it's vacancy_id, change it here)
+                        vacancyId: masterVacancyId, 
                         fileType: type,
                         fileName: fileObj.name,
-                        fileUrl: publicUrl,
-                        // REMOVED `fileData` (Base64) - Your db table screenshot shows 6 columns.
-                        // Inserting 5MB of base64 text into a standard db column causes query rejections.
+                        fileData: publicUrl,  // We are storing the URL in your 'fileData' column
                         uploadedAt: new Date().toISOString()
                     };
 
