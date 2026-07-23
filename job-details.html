@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Details - LankaJobs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        
+        @media print {
+            nav, .no-print { display: none !important; }
+            body { background: white; }
+            .print-container { box-shadow: none; border: none; padding: 0; margin: 0; max-width: 100%; }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen flex flex-col selection:bg-rose-200 selection:text-rose-900">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-[60] shadow-sm h-16 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
+                        <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center mr-2 group-hover:bg-rose-700 transition-colors shadow-inner">
+                            <i data-lucide="briefcase" class="text-white w-6 h-6"></i>
+                        </div>
+                        <span class="font-bold text-2xl text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></span>
+                    </a>
+                </div>
+                
+                <div class="hidden md:flex sm:items-center sm:space-x-4">
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Home</a>
+                    <a href="postyourvacancy.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Post Your Vacancy</a>
+                    <a href="contactus.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Contact Us</a>
+                    <div class="h-6 w-px bg-gray-300 mx-2"></div>
+                    
+                    <div class="flex items-center gap-3">
+                        <a href="login.html" class="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium">
+                            <i data-lucide="log-in" class="w-4 h-4 text-slate-500"></i>
+                            Log in / Sign in
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex items-center md:hidden gap-3">
+                    <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-slate-500 hover:text-slate-700 p-2">
+                        <i data-lucide="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200 p-4 space-y-2 shadow-inner absolute w-full left-0 top-16 z-[60]">
+            <a href="index.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-rose-50">Home</a>
+            <a href="postyourvacancy.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-rose-50">Post Vacancy</a>
+            <a href="contactus.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-rose-50">Contact Us</a>
+            <hr class="my-2">
+            <div>
+                <a href="login.html" class="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium">
+                    <i data-lucide="log-in" class="w-4 h-4 text-slate-500"></i>
+                    Log in / Sign in
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-6 md:py-10 fade-in print-container">
+        
+        <div id="loading-state" class="flex flex-col items-center justify-center py-32 no-print bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <i data-lucide="loader-2" class="w-10 h-10 animate-spin text-rose-600 mb-4"></i>
+            <h2 class="text-xl font-bold text-slate-700">Loading Vacancy Details...</h2>
+        </div>
+
+        <div id="error-state" class="hidden flex flex-col items-center justify-center py-32 no-print bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div class="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mb-4">
+                <i data-lucide="alert-circle" class="w-8 h-8 text-rose-600"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Vacancy Not Found</h2>
+            <p class="text-slate-500 mb-6">This job might have expired or the link is invalid.</p>
+            <a href="index.html" class="px-6 py-2 bg-rose-600 text-white font-bold rounded-lg hover:bg-rose-700 shadow-md">Browse Jobs</a>
+        </div>
+
+        <div id="job-content" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-start gap-4">
+                    <div class="w-14 h-14 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="building-2" class="w-7 h-7 text-rose-600"></i>
+                    </div>
+                    <div>
+                        <h2 id="jd-company" class="font-bold text-lg md:text-xl text-slate-800 leading-tight">Company Name</h2>
+                        <p id="jd-location" class="text-sm text-slate-500 flex items-center gap-1.5 mt-1 font-medium">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> Sri Lanka
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col md:items-end text-sm text-slate-600 bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-sm w-full md:w-auto">
+                    <p class="font-medium flex justify-between w-full md:w-auto gap-4">Job Ref No: <span id="jd-ref" class="text-slate-800 font-bold uppercase tracking-wider">...</span></p>
+                    <p class="font-medium text-rose-600 flex items-center gap-1.5 mt-1 justify-between w-full md:w-auto">
+                        <span class="flex items-center gap-1.5"><i data-lucide="calendar-clock" class="w-4 h-4"></i> Closing Date:</span> 
+                        <span id="jd-closing" class="font-bold text-rose-700">...</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white px-6 py-5 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6 sticky top-16 z-30 shadow-sm no-print">
+                <div class="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
+                    <span id="jd-type" class="px-3 py-1 bg-rose-50 border border-rose-100 text-rose-700 font-bold text-xs rounded-lg shadow-sm mb-2 uppercase tracking-wider">
+                        Full Time
+                    </span>
+                    <h1 id="jd-title" class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-tight">Job Title / Position</h1>
+                </div>
+                <div class="flex flex-wrap justify-center md:justify-end gap-3" id="action-buttons-top"></div>
+            </div>
+
+            <div class="p-6 md:p-10 bg-slate-50 flex flex-col items-center justify-center min-h-[400px]">
+                <div id="artwork-container" class="w-full max-w-4xl bg-white p-2 rounded-2xl shadow-sm border border-slate-200 mb-8 hidden">
+                    <img id="jd-artwork" src="" alt="Vacancy Advertisement" class="w-full h-auto rounded-xl">
+                </div>
+
+                <div class="w-full max-w-4xl bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 text-left">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+                        <i data-lucide="align-left" class="w-5 h-5 text-rose-600"></i> Vacancy Overview
+                    </h3>
+                    <div id="jd-summary" class="text-slate-700 whitespace-pre-wrap leading-relaxed text-sm md:text-base font-medium">
+                        Job description will load here...
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white px-6 py-5 border-t border-slate-200 flex flex-wrap justify-center md:justify-end items-center gap-3 bg-slate-50 no-print" id="action-buttons-bottom"></div>
+        </div>
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://cezyaulwgrgxyjhwyptk.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qslhNTtJ4ZEPooWM3s4c8g_ri8s_OGi';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        lucide.createIcons();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobId = urlParams.get('id');
+
+        async function fetchJobDetails() {
+            if (!jobId) {
+                showError();
+                return;
+            }
+
+            try {
+                const { data: job, error } = await supabase.from('ackrich-jobs').select('*').eq('id', jobId).single();
+
+                if (job && (job.status === 'active' || job.status === 'approved')) {
+                    renderJob(job, jobId);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error("Error fetching job details:", error);
+                showError();
+            }
+        }
+
+        function renderJob(job, id) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('job-content').classList.remove('hidden');
+
+            document.getElementById('jd-company').innerText = job.companyName || "Company Confidential";
+            
+            document.getElementById('jd-ref').innerText = String(id).substring(0, 7);
+            
+            let closingDate = 'Not Specified';
+            if(job.expiresAt) {
+                closingDate = new Date(job.expiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            } else if (job.created_at) {
+                const createdDate = new Date(job.created_at);
+                createdDate.setDate(createdDate.getDate() + 14); 
+                closingDate = createdDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            }
+            document.getElementById('jd-closing').innerText = closingDate;
+
+            document.getElementById('jd-type').innerText = job.jobType || "Full Time";
+            document.getElementById('jd-title').innerText = job.position || "Position Unavailable";
+            
+            document.getElementById('jd-summary').innerText = job.vacancySummary || "No detailed description provided.";
+
+            let applyButtons = [];
+            
+            if (job.applicationLink) {
+                let href = job.applicationLink.trim();
+                if (href.includes('@') && !href.includes('/') && !href.startsWith('mailto:')) {
+                    href = 'mailto:' + href;
+                } else if (!href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('mailto:')) {
+                    href = 'https://' + href;
+                }
+                
+                applyButtons.push(`
+                    <a href="${href}" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 shadow-md transition-all text-sm w-full md:w-auto whitespace-nowrap">
+                        <i data-lucide="external-link" class="w-4 h-4"></i> Apply
+                    </a>
+                `);
+            } 
+
+            if (job.destinationEmail) {
+                const subject = encodeURIComponent(`Job Application: ${job.position} (Ref: ${String(id).substring(0,7).toUpperCase()})`);
+                applyButtons.push(`
+                    <a href="mailto:${job.destinationEmail}?subject=${subject}" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 shadow-md transition-all text-sm w-full md:w-auto whitespace-nowrap">
+                        <i data-lucide="mail" class="w-4 h-4"></i> Apply via Email
+                    </a>
+                `);
+            }
+
+            if (applyButtons.length === 0) {
+                 applyButtons.push(`
+                    <button class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-300 text-slate-500 font-bold rounded-xl cursor-not-allowed shadow-md text-sm w-full md:w-auto whitespace-nowrap" disabled>
+                        <i data-lucide="link-2-off" class="w-4 h-4"></i> Link Unavailable
+                    </button>
+                `);
+            }
+
+            const buttonsHtml = applyButtons.join('');
+            const printButtonHtml = `
+                <button onclick="window.print()" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 shadow-sm transition-all text-sm w-full md:w-auto whitespace-nowrap">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Print
+                </button>
+            `;
+
+            document.getElementById('action-buttons-top').innerHTML = buttonsHtml + printButtonHtml;
+            document.getElementById('action-buttons-bottom').innerHTML = buttonsHtml;
+            lucide.createIcons();
+            document.title = `${job.position} at ${job.companyName} - LankaJobs`;
+        }
+
+        function showError() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+        }
+
+        fetchJobDetails();
+    </script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LankaJobs - Home & Candidate Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        .hidden-view { display: none !important; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .vertical-tab-text {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            text-orientation: mixed;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans selection:bg-rose-200 selection:text-rose-900 min-h-screen flex flex-col overflow-x-hidden">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-[60] shadow-sm h-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
+                        <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center mr-2 group-hover:bg-rose-700 transition-colors shadow-inner">
+                            <i data-lucide="briefcase" class="text-white w-6 h-6"></i>
+                        </div>
+                        <span class="font-bold text-2xl text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></span>
+                    </a>
+                </div>
+                
+                <div class="hidden md:flex sm:items-center sm:space-x-4">
+                    <a href="postyourvacancy.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Post Your Vacancy</a>
+                    <a href="contactus.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Contact Us</a>
+                    <div class="h-6 w-px bg-gray-300 mx-2"></div>
+                    
+                    <div id="auth-section-desktop" class="flex items-center gap-3">
+                        <a href="login.html" class="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium">
+                            <i data-lucide="log-in" class="w-4 h-4 text-slate-500"></i> Log in / Sign in
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex items-center md:hidden">
+                    <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-slate-500 hover:text-slate-700 p-2">
+                        <i data-lucide="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200 p-4 space-y-2 shadow-inner absolute w-full left-0 top-16 z-[60]">
+            <a href="index.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-rose-600 bg-rose-50">Home</a>
+            <a href="postyourvacancy.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-rose-50">Post Vacancy</a>
+            <a href="contactus.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-rose-50">Contact Us</a>
+            <hr class="my-2">
+            <div id="auth-section-mobile">
+                <a href="login.html" class="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium">
+                    <i data-lucide="log-in" class="w-4 h-4 text-slate-500"></i> Log in / Sign in
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="category-backdrop" class="fixed inset-0 top-[64px] bg-slate-900/60 z-[45] hidden transition-opacity lg:bg-transparent lg:pointer-events-none" onclick="window.toggleCategorySidebar()"></div>
+
+    <div id="category-sidebar" class="fixed top-[64px] left-0 h-[calc(100vh-64px)] w-[220px] sm:w-[240px] bg-white shadow-[15px_0_30px_-5px_rgba(0,0,0,0.15)] z-[50] transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-r border-slate-200">
+        <button onclick="window.toggleCategorySidebar()" class="absolute -right-[46px] top-12 bg-rose-600 text-white rounded-r-xl shadow-[5px_0_10px_-3px_rgba(0,0,0,0.3)] hover:bg-rose-700 transition-colors flex flex-col items-center justify-center py-6 w-[46px] border border-l-0 border-rose-700 pointer-events-auto z-[55]">
+            <i id="category-toggle-icon" data-lucide="chevron-right" class="w-5 h-5 mb-3 transition-transform"></i>
+            <span id="category-toggle-text" class="vertical-tab-text font-bold tracking-widest text-xs uppercase">Show Job Categories</span>
+        </button>
+        
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 p-5 text-white font-bold flex justify-between items-center shrink-0 border-b-4 border-rose-600">
+            Select Job Category
+            <i data-lucide="list-filter" class="w-5 h-5 text-rose-400"></i>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto bg-slate-50">
+            <ul id="category-list" class="divide-y divide-slate-200">
+                <li class="p-8 text-center text-slate-500"><i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-rose-600"></i></li>
+            </ul>
+        </div>
+    </div>
+
+    <main class="flex-1 pb-12 flex flex-col pt-6 z-10 relative">
+        <div id="view-home" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 fade-in w-full">
+            
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-8 flex flex-col md:flex-row gap-4 relative z-10">
+                <div class="flex-1 relative">
+                    <i data-lucide="search" class="absolute left-4 top-3.5 text-slate-400 w-5 h-5"></i>
+                    <input type="text" placeholder="Search by keywords, job title, or company..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                </div>
+                <div class="w-full md:w-64 relative">
+                    <input type="text" placeholder="Job Ref Number" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                </div>
+                <button class="bg-rose-600 text-white px-8 py-3 rounded-xl hover:bg-rose-700 font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                    Search <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="flex-1">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-4">
+                    <h2 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3">
+                        Latest Active Jobs Live
+                        <span id="job-count" class="px-3 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full">0 Jobs</span>
+                    </h2>
+                    
+                    <div class="flex bg-slate-100 rounded-lg p-1 border border-slate-200 self-start sm:self-auto">
+                        <button onclick="window.setViewMode('grid')" id="btn-view-grid" class="p-1.5 rounded bg-white shadow-sm text-rose-600 transition-colors" title="Grid View">
+                            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="window.setViewMode('list')" id="btn-view-list" class="p-1.5 rounded text-slate-400 hover:text-slate-600 transition-colors" title="List View">
+                            <i data-lucide="list" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="job-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div class="col-span-full py-16 text-center text-slate-500 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                        <i data-lucide="loader-2" class="w-10 h-10 animate-spin mx-auto mb-4 text-rose-600"></i>
+                        <p class="font-medium text-lg">Loading active jobs...</p>
+                    </div>
+                </div>
+
+                <div id="pagination-controls" class="mt-8 flex justify-center items-center gap-2 fade-in"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="hidden fixed bottom-6 right-6 z-[80] flex items-center gap-3 text-white px-6 py-4 rounded-xl shadow-2xl transition-all">
+        <i id="toast-icon" data-lucide="check-circle" class="w-6 h-6"></i>
+        <span id="toast-message" class="font-medium text-sm">Message</span>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://cezyaulwgrgxyjhwyptk.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_qslhNTtJ4ZEPooWM3s4c8g_ri8s_OGi';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        let currentUser = null;
+        window.allActiveJobs = [];
+        window.currentViewMode = 'grid'; 
+        window.currentPage = 1;
+        window.jobsPerPage = 30;
+
+        window.showToast = (message, type = 'success') => {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            document.getElementById('toast-icon').setAttribute('data-lucide', type === 'success' ? 'check-circle' : 'alert-circle');
+            toast.className = `fixed bottom-6 right-6 z-[80] flex items-center gap-3 px-6 py-4 rounded-xl shadow-2xl fade-in ${type==='success'?'bg-emerald-600':'bg-rose-600'} text-white`;
+            lucide.createIcons();
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        };
+
+        window.handleLogout = async () => {
+            await supabase.auth.signOut();
+            window.showToast("Logged out.", "success");
+            window.location.href = 'index.html'; 
+        };
+
+        supabase.auth.onAuthStateChange((event, session) => {
+            currentUser = session?.user || null;
+            if (currentUser) {
+                const navHtml = `<a href="login.html" class="flex items-center gap-2 bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-colors shadow-sm font-medium"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard</a>
+                                 <button onclick="window.handleLogout()" class="text-slate-400 hover:text-rose-600 ml-2" title="Logout"><i data-lucide="log-out" class="w-5 h-5"></i></button>`;
+                document.getElementById('auth-section-desktop').innerHTML = navHtml;
+                document.getElementById('auth-section-mobile').innerHTML = navHtml.replace('px-4 py-2', 'w-full px-4 py-2 justify-center');
+            } else {
+                const loginBtnHtml = `<a href="login.html" class="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium"><i data-lucide="log-in" class="w-4 h-4 text-slate-500"></i> Log in / Sign in</a>`;
+                document.getElementById('auth-section-desktop').innerHTML = loginBtnHtml;
+                document.getElementById('auth-section-mobile').innerHTML = loginBtnHtml.replace('px-4 py-2', 'w-full px-4 py-2 justify-center');
+            }
+            lucide.createIcons();
+        });
+
+        window.isCategorySidebarOpen = false;
+        window.toggleCategorySidebar = () => {
+            const sidebar = document.getElementById('category-sidebar');
+            const backdrop = document.getElementById('category-backdrop');
+            const icon = document.getElementById('category-toggle-icon');
+            const text = document.getElementById('category-toggle-text');
+            
+            window.isCategorySidebarOpen = !window.isCategorySidebarOpen;
+            
+            if (window.isCategorySidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+                icon.setAttribute('data-lucide', 'chevron-left');
+                text.innerText = 'HIDE JOB CATEGORIES';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+                icon.setAttribute('data-lucide', 'chevron-right');
+                text.innerText = 'SHOW JOB CATEGORIES';
+            }
+            lucide.createIcons();
+        };
+
+        const loadCategories = async () => {
+            try {
+                const { data, error } = await supabase.from('settings').select('categories').eq('id', 'form_options').single();
+                let categories = ["Engineering", "Sales", "Marketing", "IT & Software", "Administration"]; 
+                if (data && data.categories) {
+                    categories = data.categories;
+                }
+                
+                const catList = document.getElementById('category-list');
+                const activeClasses = 'bg-rose-100 text-rose-800 border-l-4 border-rose-600 shadow-inner';
+                const inactiveClasses = 'border-l-4 border-transparent text-slate-700 hover:bg-slate-100';
+                
+                let html = `<li><a href="index.html" class="block px-6 py-4 text-sm font-bold transition-all ${activeClasses}">All Active Jobs</a></li>`;
+                
+                categories.forEach(cat => {
+                    html += `<li>
+                                <a href="categories.html?category=${encodeURIComponent(cat)}" class="flex justify-between items-center px-6 py-4 text-sm font-bold transition-all ${inactiveClasses}">
+                                    ${cat}
+                                </a>
+                             </li>`;
+                });
+                
+                catList.innerHTML = html;
+                lucide.createIcons();
+            } catch (err) {
+                console.error("Error loading categories:", err);
+            }
+        };
+
+        window.setViewMode = (mode) => {
+            window.currentViewMode = mode;
+            const btnGrid = document.getElementById('btn-view-grid');
+            const btnList = document.getElementById('btn-view-list');
+            
+            if (mode === 'grid') {
+                btnGrid.className = 'p-1.5 rounded bg-white shadow-sm text-rose-600 transition-colors';
+                btnList.className = 'p-1.5 rounded text-slate-400 hover:text-slate-600 transition-colors';
+            } else {
+                btnList.className = 'p-1.5 rounded bg-white shadow-sm text-rose-600 transition-colors';
+                btnGrid.className = 'p-1.5 rounded text-slate-400 hover:text-slate-600 transition-colors';
+            }
+            window.renderJobs();
+        };
+
+        window.changePage = (page) => {
+            window.currentPage = page;
+            window.renderJobs();
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        };
+
+        const renderPagination = (totalPages) => {
+            const container = document.getElementById('pagination-controls');
+            if (totalPages <= 1) { container.innerHTML = ''; return; }
+            
+            let html = '';
+            html += `<button onclick="window.changePage(${window.currentPage - 1})" ${window.currentPage === 1 ? 'disabled class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"'}><i data-lucide="chevron-left" class="w-4 h-4"></i></button>`;
+            
+            let startPage = Math.max(1, window.currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === window.currentPage) {
+                    html += `<button class="px-4 py-1.5 rounded-lg bg-rose-600 text-white font-bold shadow-sm">${i}</button>`;
+                } else {
+                    html += `<button onclick="window.changePage(${i})" class="px-4 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors font-medium">${i}</button>`;
+                }
+            }
+
+            html += `<button onclick="window.changePage(${window.currentPage + 1})" ${window.currentPage === totalPages ? 'disabled class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-300 cursor-not-allowed"' : 'class="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"'}><i data-lucide="chevron-right" class="w-4 h-4"></i></button>`;
+            
+            container.innerHTML = html;
+            lucide.createIcons();
+        };
+
+        window.renderJobs = () => {
+            const gridContainer = document.getElementById('job-grid');
+            let filteredJobs = window.allActiveJobs;
+            
+            const totalJobs = filteredJobs.length;
+            document.getElementById('job-count').innerText = `${totalJobs} Job${totalJobs !== 1 ? 's' : ''}`;
+            
+            if(totalJobs === 0) {
+                gridContainer.className = 'grid grid-cols-1';
+                gridContainer.innerHTML = `<div class="col-span-full py-20 text-center bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="search-x" class="w-8 h-8 text-slate-400"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-700 mb-1">No vacancies found</h3>
+                    <p class="text-slate-500 text-sm">There are currently no active jobs in the system.</p>
+                </div>`;
+                document.getElementById('pagination-controls').innerHTML = '';
+                lucide.createIcons();
+                return;
+            }
+
+            const totalPages = Math.ceil(totalJobs / window.jobsPerPage);
+            if (window.currentPage > totalPages) window.currentPage = totalPages || 1;
+            
+            const startIndex = (window.currentPage - 1) * window.jobsPerPage;
+            const paginatedJobs = filteredJobs.slice(startIndex, startIndex + window.jobsPerPage);
+
+            if (window.currentViewMode === 'grid') {
+                gridContainer.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6';
+            } else {
+                gridContainer.className = 'flex flex-col gap-4';
+            }
+
+            gridContainer.innerHTML = paginatedJobs.map(job => {
+                let openingDate = 'N/A';
+                if(job.created_at) openingDate = new Date(job.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                
+                let closingDate = 'N/A';
+                if (job.created_at) {
+                    const d = new Date(job.created_at);
+                    d.setDate(d.getDate() + 14); 
+                    closingDate = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+
+                if (window.currentViewMode === 'grid') {
+                    return `
+                        <a href="job-details.html?id=${job.id}" target="_blank" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-rose-300 cursor-pointer transition-all duration-300 flex flex-col relative group overflow-hidden block">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-200 to-slate-300 group-hover:from-rose-500 group-hover:to-orange-400 transition-all duration-300"></div>
+                            <div class="flex-1 mt-2">
+                                <h3 class="text-xl font-bold text-slate-800 group-hover:text-rose-600 line-clamp-2 leading-tight mb-3">${job.position || 'Untitled Position'}</h3>
+                                <div class="text-sm font-semibold text-slate-600 flex items-center gap-2 mb-1.5">
+                                    <i data-lucide="building" class="w-4 h-4 text-slate-400 shrink-0"></i> ${job.companyName || 'Unknown Company'}
+                                </div>
+                                <div class="text-sm text-slate-500 flex items-center gap-2 mb-4">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-slate-400 shrink-0"></i> Sri Lanka
+                                </div>
+                                ${job.jobCategory ? `<span class="inline-block px-3 py-1 bg-rose-50 border border-rose-100 text-rose-700 text-[10px] font-bold rounded-lg uppercase tracking-wider">${job.jobCategory}</span>` : ''}
+                            </div>
+                            <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col gap-2 -mx-6 -mb-6 px-6 py-4 bg-slate-50 group-hover:bg-rose-50/30 transition-colors">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-slate-500 font-medium flex items-center gap-1.5"><i data-lucide="calendar" class="w-4 h-4"></i> Opened:</span><span class="font-bold text-slate-700">${openingDate}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-rose-600 font-medium flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> Closes:</span><span class="font-bold text-rose-700">${closingDate}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                } else {
+                    return `
+                        <a href="job-details.html?id=${job.id}" target="_blank" class="bg-white rounded-xl p-4 md:p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-rose-300 cursor-pointer transition-all flex flex-col md:flex-row gap-4 md:items-center relative group overflow-hidden block">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-slate-200 to-slate-300 group-hover:from-rose-500 group-hover:to-orange-400 transition-all duration-300"></div>
+                            <div class="flex-1 pl-3">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="text-lg font-bold text-slate-800 group-hover:text-rose-600 leading-tight mb-1 pr-2">${job.position || 'Untitled Position'}</h3>
+                                    ${job.jobCategory ? `<span class="hidden md:inline-block px-2 py-1 bg-rose-50 border border-rose-100 text-rose-700 text-[10px] font-bold rounded flex-shrink-0 uppercase tracking-wider whitespace-nowrap ml-2">${job.jobCategory}</span>` : ''}
+                                </div>
+                                <div class="flex flex-wrap gap-x-6 gap-y-1 mt-1 text-sm text-slate-600 font-medium">
+                                    <span class="flex items-center gap-1.5"><i data-lucide="building" class="w-4 h-4 text-slate-400"></i> ${job.companyName || 'Unknown Company'}</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 md:mt-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 flex flex-row md:flex-col justify-between md:justify-center md:items-end gap-1 md:w-48 flex-shrink-0">
+                                <div class="text-xs text-slate-500 font-medium"><span class="md:hidden">Opened: </span>${openingDate}</div>
+                                <div class="text-sm font-bold text-rose-600 flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> <span class="md:hidden">Closes: </span>${closingDate}</div>
+                            </div>
+                        </a>
+                    `;
+                }
+            }).join('');
+            
+            renderPagination(totalPages);
+            lucide.createIcons();
+        };
+
+        const fetchJobs = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('ackrich-jobs')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                window.allActiveJobs = data || [];
+                if(window.currentPage > Math.ceil(window.allActiveJobs.length / window.jobsPerPage)){
+                    window.currentPage = 1;
+                }
+                window.renderJobs();
+            } catch (error) {
+                console.error("Error loading jobs:", error);
+                document.getElementById('job-grid').innerHTML = '<div class="col-span-full p-8 text-center text-rose-500 bg-rose-50 rounded-xl border border-rose-200">Could not load jobs. Please check database configuration.</div>';
+            }
+        };
+
+        // Initialize UI
+        loadCategories();
+        fetchJobs();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
