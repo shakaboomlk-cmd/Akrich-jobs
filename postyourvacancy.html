@@ -6,14 +6,17 @@
     <title>Post Your Vacancy - LankaJobs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { 
+            from { transform: translateY(20px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
         .slide-up { animation: slideUp 0.4s ease-out; }
         
-        /* Custom radio and checkbox colors */
         .accent-rose { accent-color: #e11d48; }
         
-        /* Custom scrollbar */
+        /* Custom scrollbar styling */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -27,7 +30,7 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
-                        <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center mr-2 group-hover:bg-rose-700 transition-colors">
+                        <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center mr-2 group-hover:bg-rose-700 transition-colors shadow-sm">
                             <i data-lucide="briefcase" class="text-white w-6 h-6"></i>
                         </div>
                         <span class="font-bold text-2xl text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></span>
@@ -35,8 +38,8 @@
                 </div>
                 <div class="hidden md:flex sm:items-center sm:space-x-4">
                     <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Home</a>
-                    <a href="post_vacancy.html" class="px-3 py-2 rounded-md text-sm font-bold text-rose-600 bg-rose-50 transition-colors">Post Your Vacancy</a>
-                    <a href="contactus.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Contact Us</a>
+                    <a href="postyourvacancy.html" class="px-3 py-2 rounded-md text-sm font-bold text-rose-600 bg-rose-50 transition-colors">Post Your Vacancy</a>
+                    <a href="login.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Candidate Portal</a>
                 </div>
             </div>
         </div>
@@ -44,6 +47,7 @@
 
     <main class="flex-1 pb-12 pt-8 max-w-5xl mx-auto px-4 w-full slide-up">
         
+        <!-- Package Info Callout -->
         <div class="bg-blue-50 border border-blue-200 p-6 rounded-2xl mb-8 flex items-start gap-4 shadow-sm">
             <div class="bg-blue-100 p-3 rounded-xl hidden sm:block">
                 <i data-lucide="megaphone" class="w-6 h-6 text-blue-700"></i>
@@ -54,6 +58,7 @@
             </div>
         </div>
 
+        <!-- Form Card Container -->
         <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-10">
             <div class="bg-gradient-to-r from-slate-800 to-slate-900 p-8 text-white text-center border-b-4 border-rose-600">
                 <h2 class="text-3xl font-bold mb-2 tracking-tight">Publish Your Vacancy</h2>
@@ -64,23 +69,23 @@
                 
                 <section>
                     <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-200 pb-3">
-                        <div class="bg-rose-100 p-2 rounded-lg"><i data-lucide="building-2" class="text-rose-600 w-5 h-5"></i></div> Client Info
+                        <div class="bg-rose-100 p-2 rounded-lg"><i data-lucide="building-2" class="text-rose-600 w-5 h-5"></i></div> Client Information
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex flex-col md:col-span-2">
                             <label class="text-sm font-semibold text-slate-700 mb-1">Company Name <span class="text-rose-500">*</span></label>
-                            <input type="text" id="companyName" required placeholder="e.g. Acme Corp" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                            <input type="text" id="companyName" required placeholder="e.g. Acme Lanka Pvt Ltd" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                         <div class="flex flex-col">
                             <label class="text-sm font-semibold text-slate-700 mb-1">Contact Email <span class="text-rose-500">*</span></label>
-                            <input type="email" id="clientEmail" required placeholder="name@company.com" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                            <input type="email" id="clientEmail" required placeholder="hr@acme.lk" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                         <div class="flex flex-col">
                             <label class="text-sm font-semibold text-slate-700 mb-1">Contact Person <span class="text-rose-500">*</span></label>
                             <input type="text" id="contactPerson" required placeholder="e.g. Jane Doe" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Contact Number <span class="text-rose-500">*</span></label>
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Contact Phone <span class="text-rose-500">*</span></label>
                             <input type="tel" id="contactNumber" required placeholder="e.g. 077 123 4567" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                         <div class="flex flex-col md:col-span-2">
@@ -88,22 +93,25 @@
                             <textarea id="companyAddress" required rows="2" placeholder="Full postal address..." class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow resize-y"></textarea>
                         </div>
                         
-                        <!-- UPDATED: Limits increased to 5MB visually -->
+                        <!-- File Upload: Business Reg (Max 5MB) -->
                         <div class="flex flex-col">
                             <label class="text-sm font-semibold text-slate-700 mb-1">Business Registration (Max 5MB) <span class="text-rose-500">*</span></label>
                             <input type="file" id="businessReg" required accept=".pdf, image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100 cursor-pointer border border-gray-200 rounded-xl bg-slate-50">
-                            <span class="text-xs text-slate-500 mt-1">Required for new clients. PDF or Image.</span>
+                            <span class="text-xs text-slate-500 mt-1">Required for verification. Max file size: 5MB</span>
                         </div>
+                        
+                        <!-- File Upload: VAT Cert (Max 5MB) -->
                         <div class="flex flex-col">
                             <label class="text-sm font-semibold text-slate-700 mb-1">VAT Certificate (Optional, Max 5MB)</label>
                             <input type="file" id="vatCert" accept=".pdf, image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300 cursor-pointer border border-gray-200 rounded-xl bg-slate-50">
+                            <span class="text-xs text-slate-500 mt-1">Optional. PDF or Image. Max file size: 5MB</span>
                         </div>
                     </div>
                 </section>
 
                 <section>
                     <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2 border-b border-gray-200 pb-3">
-                        <div class="bg-rose-100 p-2 rounded-lg"><i data-lucide="briefcase" class="text-rose-600 w-5 h-5"></i></div> Job Details
+                        <div class="bg-rose-100 p-2 rounded-lg"><i data-lucide="briefcase" class="text-rose-600 w-5 h-5"></i></div> Job Specification
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="flex flex-col md:col-span-2">
@@ -111,17 +119,18 @@
                             <input type="text" id="position" required placeholder="e.g. Senior Software Engineer" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">No. of Positions <span class="text-rose-500">*</span></label>
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Number of Vacancies <span class="text-rose-500">*</span></label>
                             <input type="number" id="numPositions" required min="1" placeholder="e.g. 3" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Company / Industry <span class="text-rose-500">*</span></label>
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Industry <span class="text-rose-500">*</span></label>
                             <select id="industry" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                                 <option value="">Select Industry</option>
                                 <option value="IT & Software">IT & Software</option>
                                 <option value="Banking & Finance">Banking & Finance</option>
                                 <option value="Manufacturing">Manufacturing</option>
-                                <option value="Retail">Retail</option>
+                                <option value="Retail & Trade">Retail & Trade</option>
+                                <option value="Healthcare">Healthcare</option>
                                 <option value="Other">Other</option>
                             </select>
                         </div>
@@ -130,10 +139,11 @@
                             <select id="jobCategory" required class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                                 <option value="">Select Category</option>
                                 <option value="Engineering">Engineering</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Operations">Operations</option>
-                                <option value="Administration">Administration</option>
+                                <option value="Software / Tech">Software / Tech</option>
+                                <option value="Sales & Business Dev">Sales & Business Dev</option>
+                                <option value="Marketing & Advertising">Marketing & Advertising</option>
+                                <option value="Operations & Admin">Operations & Admin</option>
+                                <option value="Finance & Accounting">Finance & Accounting</option>
                             </select>
                         </div>
                         <div class="flex flex-col md:col-span-2">
@@ -146,20 +156,20 @@
                             </div>
                         </div>
                         <div class="flex flex-col md:col-span-2">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Vacancy Summary <span class="text-rose-500">*</span></label>
-                            <textarea id="vacancySummary" required rows="4" placeholder="Briefly describe the role, requirements, and benefits..." class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow resize-y"></textarea>
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Vacancy Summary & Key Requirements <span class="text-rose-500">*</span></label>
+                            <textarea id="vacancySummary" required rows="4" placeholder="Briefly describe the key job responsibilities, candidate requirements, and qualifications..." class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow resize-y"></textarea>
                         </div>
                         
-                        <!-- UPDATED: Artwork limit increased to 5MB -->
+                        <!-- File Upload: Artwork Files (Max 5MB) -->
                         <div class="flex flex-col md:col-span-2">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Vacancy Artwork (Max 5MB)</label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-slate-50 flex flex-col items-center justify-center relative hover:bg-slate-100 transition-colors">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Vacancy Artwork / Flyer (Max 5MB)</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-slate-50 flex flex-col items-center justify-center relative hover:bg-slate-100 transition-colors cursor-pointer">
                                 <i data-lucide="image-plus" class="w-8 h-8 text-slate-400 mb-2"></i>
-                                <span class="text-sm font-medium text-slate-600 text-center mb-1">Click to upload artwork file</span>
-                                <span class="text-xs text-slate-400">PDF, JPG, PNG allowed (Max 5MB)</span>
+                                <span class="text-sm font-medium text-slate-600 text-center mb-1">Click to upload vacancy flyer or artwork image</span>
+                                <span class="text-xs text-slate-400">PDF, JPG, PNG allowed (Maximum file size: 5MB)</span>
                                 <input type="file" id="artworkFiles" accept=".pdf, image/png, image/jpeg, image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                             </div>
-                            <p id="artwork-list" class="text-xs text-rose-600 mt-2 font-medium hidden"></p>
+                            <p id="artwork-list" class="text-xs text-rose-600 mt-2 font-semibold hidden"></p>
                         </div>
                         <div class="flex flex-col">
                             <label class="text-sm font-semibold text-slate-700 mb-1">Country</label>
@@ -172,7 +182,7 @@
                             </select>
                         </div>
                         <div class="flex flex-col">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">District <span class="text-rose-500">*</span></label>
+                            <label class="text-sm font-semibold text-slate-700 mb-1">District / Region <span class="text-rose-500">*</span></label>
                             <input type="text" id="district" required placeholder="e.g. Colombo" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                     </div>
@@ -187,20 +197,19 @@
                             <label class="text-sm font-semibold text-slate-700 mb-3">How should candidates apply? <span class="text-rose-500">*</span></label>
                             <div class="flex flex-wrap gap-6 bg-slate-50 p-4 border border-gray-200 rounded-xl">
                                 <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="appMethod" value="Via Email" checked class="accent-rose w-4 h-4"> Via Email</label>
-                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="appMethod" value="Walk-in" class="accent-rose w-4 h-4"> Walk-in</label>
-                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="appMethod" value="Via Link" class="accent-rose w-4 h-4"> Via Website Link</label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="appMethod" value="Walk-in" class="accent-rose w-4 h-4"> Walk-in Interview</label>
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700"><input type="radio" name="appMethod" value="Via Link" class="accent-rose w-4 h-4"> External Web Link</label>
                             </div>
                         </div>
                         
-                        <!-- Conditional Input for Link -->
                         <div class="flex flex-col md:col-span-2 hidden slide-up" id="linkContainer">
                             <label class="text-sm font-semibold text-slate-700 mb-1">Application URL / Link <span class="text-rose-500">*</span></label>
                             <input type="url" id="appLink" placeholder="https://careers.yourcompany.com/apply" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
 
                         <div class="flex flex-col md:col-span-2">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Destination Email (To receive CVs) <span class="text-rose-500">*</span></label>
-                            <input type="email" id="destinationEmail" required placeholder="e.g. careers@acmecorp.com" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Destination Email (To receive applicant CVs) <span class="text-rose-500">*</span></label>
+                            <input type="email" id="destinationEmail" required placeholder="e.g. careers@acme.lk" class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow">
                         </div>
                     </div>
                 </section>
@@ -211,23 +220,25 @@
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         
-                        <!-- UPDATED: Payment Slip limit increased to 5MB -->
+                        <!-- File Upload: Payment Slip (Max 5MB) -->
                         <div class="flex flex-col md:col-span-2">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Payment Slip (Max 5MB)</label>
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Payment Slip Attachment (Max 5MB)</label>
                             <input type="file" id="paymentSlip" accept=".pdf, image/png, image/jpeg" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-gray-200 rounded-xl bg-slate-50">
+                            <span class="text-xs text-slate-500 mt-1">Upload bank transfer or deposit slip. Max file size: 5MB</span>
                         </div>
                         <div class="flex flex-col md:col-span-2">
-                            <label class="text-sm font-semibold text-slate-700 mb-1">Special Remarks</label>
-                            <textarea id="specialRemarks" rows="2" placeholder="Any additional notes for our moderation team..." class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow resize-y"></textarea>
+                            <label class="text-sm font-semibold text-slate-700 mb-1">Special Remarks for Moderation Team</label>
+                            <textarea id="specialRemarks" rows="2" placeholder="Any special instructions or publishing notes..." class="px-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-shadow resize-y"></textarea>
                         </div>
                     </div>
                 </section>
 
+                <!-- Consent Box -->
                 <div class="bg-slate-100 p-6 rounded-xl border border-slate-200">
                     <label class="flex items-start gap-3 cursor-pointer">
                         <input type="checkbox" id="privacyConsent" required class="mt-1 w-5 h-5 accent-rose rounded border-gray-300 focus:ring-rose-500">
                         <span class="text-sm text-slate-700 leading-relaxed">
-                            <strong>Privacy Consent:</strong> By checking this box, I confirm that I agree to LankaJobs processing the provided data to publish this vacancy. I guarantee that the information provided is accurate and complies with local labor laws.
+                            <strong>Privacy Consent & Terms:</strong> I confirm that I agree to LankaJobs processing the submitted details and attached files to publish this vacancy. I certify that the information provided is accurate and complies with all local Sri Lankan labor regulations.
                         </span>
                     </label>
                 </div>
@@ -241,10 +252,9 @@
         </div>
     </main>
 
-    <!-- Toast Notification -->
     <div id="toast" class="hidden fixed bottom-6 right-6 z-[60] flex items-center gap-3 text-white px-6 py-4 rounded-xl shadow-2xl transition-all max-w-sm">
-        <i id="toast-icon" data-lucide="check-circle" class="w-6 h-6"></i>
-        <span id="toast-message" class="font-medium">Message</span>
+        <i id="toast-icon" data-lucide="check-circle" class="w-6 h-6 flex-shrink-0"></i>
+        <span id="toast-message" class="font-medium text-sm">Message</span>
     </div>
 
     <script type="module">
@@ -256,8 +266,10 @@
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
         
+        // Render Lucide Icons
         lucide.createIcons();
 
+        // Toast Helper
         const showToast = (message, type = 'success') => {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').innerText = message;
@@ -268,14 +280,13 @@
             setTimeout(() => toast.classList.add('hidden'), 6000);
         };
 
-        // Handle Conditional Routing Input (Show Link field if "Via Link" is selected)
         const appMethods = document.getElementsByName('appMethod');
         const linkContainer = document.getElementById('linkContainer');
         const appLinkInput = document.getElementById('appLink');
 
         appMethods.forEach(radio => {
             radio.addEventListener('change', (e) => {
-                if(e.target.value === 'Via Link') {
+                if (e.target.value === 'Via Link') {
                     linkContainer.classList.remove('hidden');
                     appLinkInput.required = true;
                 } else {
@@ -286,20 +297,19 @@
             });
         });
 
-        // Display selected artwork files names
-        document.getElementById('artworkFiles').addEventListener('change', function(e) {
+        // Display selected artwork file details
+        document.getElementById('artworkFiles').addEventListener('change', function() {
             const list = document.getElementById('artwork-list');
-            if(this.files.length > 0) {
-                let names = Array.from(this.files).map(f => f.name).join(', ');
-                list.innerText = `Selected: ${names}`;
+            if (this.files.length > 0) {
+                const names = Array.from(this.files).map(f => f.name).join(', ');
+                list.innerText = `Selected File: ${names}`;
                 list.classList.remove('hidden');
             } else {
                 list.classList.add('hidden');
             }
         });
 
-        // UPDATED HELPER: Converts file and ensures it is under 5MB (5,242,880 bytes) limit
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB limit
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // Strict 5MB limit in bytes (5,242,880)
 
         const readFileAsBase64 = (file) => {
             return new Promise((resolve, reject) => {
@@ -309,7 +319,8 @@
                 }
                 
                 if (file.size > MAX_FILE_SIZE) { 
-                    reject(new Error(`File "${file.name}" exceeds the maximum allowed size of 5MB.`));
+                    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    reject(new Error(`File "${file.name}" (${sizeMB}MB) exceeds the maximum allowed size limit of 5MB.`));
                     return;
                 }
                 
@@ -326,18 +337,17 @@
             });
         };
 
-        // Form Submission
         document.getElementById('job-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const btn = document.getElementById('submit-btn');
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing...';
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Processing & Uploading...';
             btn.disabled = true;
             lucide.createIcons();
 
             try {
-                // 1. Process files first to catch size errors early (5MB limit check)
+                // 1. Process and validate all attached files with 5MB limit
                 let businessRegFile, vatCertFile, artworkFile, paymentSlipFile;
                 
                 try {
@@ -356,7 +366,7 @@
                 // Generate Master Vacancy UUID
                 const masterVacancyId = crypto.randomUUID ? crypto.randomUUID() : 'vac_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
 
-                // 2. Gather Text Data for Supabase
+                // 2. Prepare Vacancy Record
                 const vacancyData = {
                     id: masterVacancyId,
                     companyName: document.getElementById('companyName').value,
@@ -384,16 +394,16 @@
                     createdAt: new Date().toISOString()
                 };
 
-                // 3. Save Text Data to Supabase 'vacancies' table
+                // 3. Insert Vacancy Record into Supabase
                 const { error: vacancyErr } = await supabase
                     .from('vacancies')
                     .insert([vacancyData]);
 
                 if (vacancyErr) {
-                    throw new Error(vacancyErr.message || "Failed to create vacancy record in Supabase database.");
+                    throw new Error(vacancyErr.message || "Failed to create vacancy record.");
                 }
 
-                // 4. Upload files to Supabase Storage and log in 'vacancy_files' table
+                // 4. Upload files to Supabase Storage bucket 'vacancy_files' and record in database table
                 const filesToUpload = [
                     { fileObj: businessRegFile, type: "Business Registration" },
                     { fileObj: vatCertFile, type: "VAT Certificate" },
@@ -408,7 +418,7 @@
 
                     let publicUrl = null;
 
-                    // Upload file to Supabase Storage Bucket 'vacancy_files'
+                    // Upload file object directly to Supabase storage bucket
                     try {
                         const { data: uploadData, error: storageErr } = await supabase.storage
                             .from('vacancy_files')
@@ -420,18 +430,18 @@
                                 .getPublicUrl(filePath);
                             publicUrl = urlData?.publicUrl || null;
                         }
-                    } catch (e) {
-                        console.warn('Storage bucket upload fallback:', e);
+                    } catch (sErr) {
+                        console.warn('Storage upload note:', sErr);
                     }
 
-                    // Log File Metadata to Supabase Database Table 'vacancy_files'
+                    // Save file reference in 'vacancy_files' table
                     const fileRecord = {
                         id: crypto.randomUUID ? crypto.randomUUID() : 'file_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9),
                         vacancyId: masterVacancyId,
                         fileType: type,
                         fileName: fileObj.name,
                         fileUrl: publicUrl,
-                        fileData: fileObj.data, // Base64 backup payload
+                        fileData: fileObj.data,
                         uploadedAt: new Date().toISOString()
                     };
 
@@ -440,14 +450,14 @@
                 
                 showToast("Vacancy Submitted Successfully! Our team will review it shortly.");
                 
-                // Reset form and UI
+                // Reset form state
                 e.target.reset();
                 document.getElementById('linkContainer').classList.add('hidden');
                 document.getElementById('artwork-list').classList.add('hidden');
                 
             } catch (error) {
-                console.error("Submission Error: ", error);
-                showToast("Failed to submit. " + (error.message || "Please check Supabase rules/connection."), "error");
+                console.error("Submission Error:", error);
+                showToast("Submission failed: " + (error.message || "Please check connection."), "error");
             } finally {
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
