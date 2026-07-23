@@ -6,17 +6,18 @@
     <title>Job Details - LankaJobs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .fade-in { animation: fadeIn 0.4s ease-in-out; }
         
+        /* Print styles to hide navigation and only print the artwork/details */
         @media print {
             nav, .no-print { display: none !important; }
             body { background: white; }
             .print-container { box-shadow: none; border: none; padding: 0; margin: 0; max-width: 100%; }
         }
 
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -25,6 +26,7 @@
 </head>
 <body class="bg-slate-50 font-sans min-h-screen flex flex-col selection:bg-rose-200 selection:text-rose-900">
 
+    <!-- Top Navigation (Static) -->
     <nav class="bg-white border-b border-gray-200 sticky top-0 z-[60] shadow-sm h-16 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
             <div class="flex justify-between items-center h-full">
@@ -43,6 +45,7 @@
                     <a href="contactus.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Contact Us</a>
                     <div class="h-6 w-px bg-gray-300 mx-2"></div>
                     
+                    <!-- Static Login Button -->
                     <div class="flex items-center gap-3">
                         <a href="login.html" class="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors shadow-sm font-medium">
                             <i data-lucide="log-in" class="w-4 h-4 text-slate-500"></i>
@@ -59,6 +62,7 @@
             </div>
         </div>
         
+        <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200 p-4 space-y-2 shadow-inner absolute w-full left-0 top-16 z-[60]">
             <a href="index.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-rose-50">Home</a>
             <a href="postyourvacancy.html" class="block w-full text-left px-3 py-2 rounded-md font-medium text-slate-700 hover:bg-rose-50">Post Vacancy</a>
@@ -75,11 +79,13 @@
 
     <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-6 md:py-10 fade-in print-container">
         
+        <!-- Loading UI -->
         <div id="loading-state" class="flex flex-col items-center justify-center py-32 no-print bg-white rounded-2xl border border-slate-200 shadow-sm">
             <i data-lucide="loader-2" class="w-10 h-10 animate-spin text-rose-600 mb-4"></i>
             <h2 class="text-xl font-bold text-slate-700">Loading Vacancy Details...</h2>
         </div>
 
+        <!-- Error UI -->
         <div id="error-state" class="hidden flex flex-col items-center justify-center py-32 no-print bg-white rounded-2xl border border-slate-200 shadow-sm">
             <div class="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mb-4">
                 <i data-lucide="alert-circle" class="w-8 h-8 text-rose-600"></i>
@@ -91,6 +97,7 @@
 
         <div id="job-content" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             
+            <!-- 1. Top Info Bar (Company, Ref, Dates) -->
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div class="flex items-start gap-4">
                     <div class="w-14 h-14 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center flex-shrink-0">
@@ -99,7 +106,7 @@
                     <div>
                         <h2 id="jd-company" class="font-bold text-lg md:text-xl text-slate-800 leading-tight">Company Name</h2>
                         <p id="jd-location" class="text-sm text-slate-500 flex items-center gap-1.5 mt-1 font-medium">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> Sri Lanka
+                            <i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> Location
                         </p>
                     </div>
                 </div>
@@ -113,21 +120,32 @@
                 </div>
             </div>
 
+            <!-- 2. Action/Nav Bar (Prominent Job Title & Actions) -->
             <div class="bg-white px-6 py-5 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6 sticky top-16 z-30 shadow-sm no-print">
+                
+                <!-- Left: Job Type Badge & Title -->
                 <div class="flex-1 flex flex-col items-center md:items-start text-center md:text-left">
                     <span id="jd-type" class="px-3 py-1 bg-rose-50 border border-rose-100 text-rose-700 font-bold text-xs rounded-lg shadow-sm mb-2 uppercase tracking-wider">
                         Full Time
                     </span>
                     <h1 id="jd-title" class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-tight">Job Title / Position</h1>
                 </div>
-                <div class="flex flex-wrap justify-center md:justify-end gap-3" id="action-buttons-top"></div>
+
+                <!-- Right: Actions (Apply & Print) -->
+                <div class="flex flex-wrap justify-center md:justify-end gap-3" id="action-buttons-top">
+                    <!-- Buttons dynamically injected via JS -->
+                </div>
             </div>
 
+            <!-- 3. Main Content (Artwork / Summary) -->
             <div class="p-6 md:p-10 bg-slate-50 flex flex-col items-center justify-center min-h-[400px]">
+                
+                <!-- Artwork Image -->
                 <div id="artwork-container" class="w-full max-w-4xl bg-white p-2 rounded-2xl shadow-sm border border-slate-200 mb-8 hidden">
                     <img id="jd-artwork" src="" alt="Vacancy Advertisement" class="w-full h-auto rounded-xl">
                 </div>
 
+                <!-- Text Summary -->
                 <div class="w-full max-w-4xl bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 text-left">
                     <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
                         <i data-lucide="align-left" class="w-5 h-5 text-rose-600"></i> Vacancy Overview
@@ -136,19 +154,29 @@
                         Job description will load here...
                     </div>
                 </div>
+
             </div>
 
-            <div class="bg-white px-6 py-5 border-t border-slate-200 flex flex-wrap justify-center md:justify-end items-center gap-3 bg-slate-50 no-print" id="action-buttons-bottom"></div>
+            <!-- 4. Bottom Bar (Repeat Actions) -->
+            <div class="bg-white px-6 py-5 border-t border-slate-200 flex flex-wrap justify-center md:justify-end items-center gap-3 bg-slate-50 no-print" id="action-buttons-bottom">
+                <!-- Apply Buttons injected here -->
+            </div>
+            
         </div>
     </main>
 
-    <script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // Supabase Configuration
         const SUPABASE_URL = 'https://cezyaulwgrgxyjhwyptk.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_qslhNTtJ4ZEPooWM3s4c8g_ri8s_OGi';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_qslhNTtJ4ZEPooWM3s4c8g_ri8s_OGi';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
         
         lucide.createIcons();
 
+        // Get Job ID from Query Parameters
         const urlParams = new URLSearchParams(window.location.search);
         const jobId = urlParams.get('id');
 
@@ -159,10 +187,22 @@
             }
 
             try {
-                const { data: job, error } = await supabase.from('ackrich-jobs').select('*').eq('id', jobId).single();
+                // Query vacancies table from Supabase
+                const { data: job, error } = await supabase
+                    .from('vacancies')
+                    .select('*')
+                    .eq('id', jobId)
+                    .maybeSingle();
 
-                if (job && (job.status === 'active' || job.status === 'approved')) {
-                    renderJob(job, jobId);
+                if (error) {
+                    console.error("Supabase fetch error:", error);
+                    showError();
+                    return;
+                }
+
+                // Ensure job exists and status is active, approved, or open
+                if (job && (job.status === 'active' || job.status === 'approved' || !job.status)) {
+                    renderJob(job, job.id || jobId);
                 } else {
                     showError();
                 }
@@ -173,35 +213,54 @@
         }
 
         function renderJob(job, id) {
+            const rawId = String(id || '');
+
+            // Display main container
             document.getElementById('loading-state').classList.add('hidden');
             document.getElementById('job-content').classList.remove('hidden');
 
-            document.getElementById('jd-company').innerText = job.companyName || "Company Confidential";
+            // Header Section
+            document.getElementById('jd-company').innerText = job.companyName || job.company || "Company Confidential";
+            document.getElementById('jd-location').innerHTML = `<i data-lucide="map-pin" class="w-4 h-4 text-slate-400"></i> ${job.district || ''}${job.country ? ', ' + job.country : ''}`;
             
-            document.getElementById('jd-ref').innerText = String(id).substring(0, 7);
+            // Reference Number
+            document.getElementById('jd-ref').innerText = rawId.substring(0, 7) || 'N/A';
             
+            // Smart Expiry Date Logic
             let closingDate = 'Not Specified';
-            if(job.expiresAt) {
+            if (job.expiresAt) {
                 closingDate = new Date(job.expiresAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-            } else if (job.created_at) {
-                const createdDate = new Date(job.created_at);
+            } else if (job.createdAt || job.created_at) {
+                const createdDate = new Date(job.createdAt || job.created_at);
                 createdDate.setDate(createdDate.getDate() + 14); 
                 closingDate = createdDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
             }
             document.getElementById('jd-closing').innerText = closingDate;
 
+            // Nav Bar Section
             document.getElementById('jd-type').innerText = job.jobType || "Full Time";
-            document.getElementById('jd-title').innerText = job.position || "Position Unavailable";
+            document.getElementById('jd-title').innerText = job.title || job.position || "Position Unavailable";
             
+            // Content Section
             document.getElementById('jd-summary').innerText = job.vacancySummary || "No detailed description provided.";
+
+            if (job.artworkUrl) {
+                document.getElementById('artwork-container').classList.remove('hidden');
+                document.getElementById('jd-artwork').src = job.artworkUrl;
+            }
 
             let applyButtons = [];
             
+            // 1. Primary Website/Link Apply Button
             if (job.applicationLink) {
                 let href = job.applicationLink.trim();
+                
+                // Smart parsing: If it's an email address, make it a mailto link automatically
                 if (href.includes('@') && !href.includes('/') && !href.startsWith('mailto:')) {
                     href = 'mailto:' + href;
-                } else if (!href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('mailto:')) {
+                } 
+                // If it's a web link missing protocol
+                else if (!href.startsWith('http://') && !href.startsWith('https://') && !href.startsWith('mailto:')) {
                     href = 'https://' + href;
                 }
                 
@@ -212,8 +271,9 @@
                 `);
             } 
 
+            // 2. Email Apply Button
             if (job.destinationEmail) {
-                const subject = encodeURIComponent(`Job Application: ${job.position} (Ref: ${String(id).substring(0,7).toUpperCase()})`);
+                const subject = encodeURIComponent(`Job Application: ${job.position || job.title} (Ref: ${rawId.substring(0,7).toUpperCase()})`);
                 applyButtons.push(`
                     <a href="mailto:${job.destinationEmail}?subject=${subject}" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 shadow-md transition-all text-sm w-full md:w-auto whitespace-nowrap">
                         <i data-lucide="mail" class="w-4 h-4"></i> Apply via Email
@@ -221,25 +281,53 @@
                 `);
             }
 
-            if (applyButtons.length === 0) {
-                 applyButtons.push(`
-                    <button class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-300 text-slate-500 font-bold rounded-xl cursor-not-allowed shadow-md text-sm w-full md:w-auto whitespace-nowrap" disabled>
-                        <i data-lucide="link-2-off" class="w-4 h-4"></i> Link Unavailable
-                    </button>
+            // 3. WhatsApp Button
+            if (job.whatsappNumber) {
+                const cleanWa = job.whatsappNumber.replace(/[^0-9+]/g, '');
+                const message = encodeURIComponent(`Hi, I'm inquiring about the ${job.position || job.title} vacancy (Ref: ${rawId.substring(0,7).toUpperCase()}).`);
+                
+                applyButtons.push(`
+                    <a href="https://wa.me/${cleanWa}?text=${message}" target="_blank" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] text-white font-bold rounded-xl hover:bg-[#128C7E] shadow-md transition-all text-sm w-full md:w-auto whitespace-nowrap">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+                    </a>
                 `);
             }
 
+            // Fallback for walk-in or missing link
+            if (applyButtons.length === 0) {
+                if (job.applicationMethod === 'Walk-in') {
+                    applyButtons.push(`
+                        <button class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white font-bold rounded-xl cursor-default shadow-md text-sm w-full md:w-auto whitespace-nowrap">
+                            <i data-lucide="footprints" class="w-4 h-4"></i> Walk-in Interviews
+                        </button>
+                    `);
+                } else {
+                     applyButtons.push(`
+                        <button class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-300 text-slate-500 font-bold rounded-xl cursor-not-allowed shadow-md text-sm w-full md:w-auto whitespace-nowrap" disabled>
+                            <i data-lucide="link-2-off" class="w-4 h-4"></i> Link Unavailable
+                        </button>
+                    `);
+                }
+            }
+
             const buttonsHtml = applyButtons.join('');
+
+            // Print Button
             const printButtonHtml = `
                 <button onclick="window.print()" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 shadow-sm transition-all text-sm w-full md:w-auto whitespace-nowrap">
                     <i data-lucide="printer" class="w-4 h-4"></i> Print
                 </button>
             `;
 
+            // Inject buttons into the UI
             document.getElementById('action-buttons-top').innerHTML = buttonsHtml + printButtonHtml;
             document.getElementById('action-buttons-bottom').innerHTML = buttonsHtml;
+
+            // Render newly injected icons
             lucide.createIcons();
-            document.title = `${job.position} at ${job.companyName} - LankaJobs`;
+            
+            // Set Page Title
+            document.title = `${job.position || job.title} at ${job.companyName || job.company} - LankaJobs`;
         }
 
         function showError() {
@@ -247,6 +335,7 @@
             document.getElementById('error-state').classList.remove('hidden');
         }
 
+        // Run
         fetchJobDetails();
     </script>
 </body>
