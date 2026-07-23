@@ -6,6 +6,7 @@
     <title>Candidate Portal - LankaJobs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         @keyframes slideUp { 
             from { transform: translateY(20px); opacity: 0; } 
@@ -257,10 +258,10 @@
                                     
                                     <div class="flex flex-wrap gap-2 justify-center w-full">
                                         <a id="cv-download-link" href="#" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm">
-                                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> View / Download File
+                                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> View / Download
                                         </a>
                                         <button id="reupload-cv-btn" class="px-4 py-2 bg-white border border-gray-300 text-slate-700 hover:bg-slate-100 rounded-lg font-semibold text-xs transition-colors flex items-center gap-1.5">
-                                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Replace CV (Max 5MB)
+                                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Replace CV
                                         </button>
                                     </div>
                                 </div>
@@ -465,7 +466,7 @@
         let currentUser = null;
         let isLoginMode = true;
         let selectedCVFile = null;
-        let userProfileData = null;
+        let uploadedDocumentUrl = null;
 
         // DOM Elements
         const initialLoader = document.getElementById('initial-loader');
@@ -489,16 +490,14 @@
         const loadingOverlay = document.getElementById('loading-overlay');
         const loadingOverlayText = document.getElementById('loading-overlay-text');
 
-        // Dashboard Header & Nav
-        const dashUserName = document.getElementById('dash-user-name');
-        const dashUserEmail = document.getElementById('dash-user-email');
-        const navOverviewBtn = document.getElementById('nav-overview');
-        const navProfileBtn = document.getElementById('nav-profile');
+        // Dashboard Tabs
         const tabOverview = document.getElementById('tab-overview');
         const tabProfile = document.getElementById('tab-profile');
-        const jumpToProfileBtn = document.getElementById('jump-to-profile');
+        const navOverview = document.getElementById('nav-overview');
+        const navProfile = document.getElementById('nav-profile');
+        const jumpToProfile = document.getElementById('jump-to-profile');
 
-        // CV Elements
+        // CV Upload Elements
         const cvFileInput = document.getElementById('cv-file-input');
         const cvUploadPrompt = document.getElementById('cv-upload-prompt');
         const cvUploadAction = document.getElementById('cv-upload-action');
@@ -511,473 +510,397 @@
         const cvDownloadLink = document.getElementById('cv-download-link');
         const reuploadCvBtn = document.getElementById('reupload-cv-btn');
 
-        // Profile Form
+        // Profile Form Elements
         const profileForm = document.getElementById('profile-form');
         const cancelProfileBtn = document.getElementById('cancel-profile-btn');
         const saveProfileBtn = document.getElementById('save-profile-btn');
 
         // Toast Helper
-        const showToast = (message, type = 'success') => {
+        function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
             document.getElementById('toast-message').innerText = message;
-            document.getElementById('toast-icon').setAttribute('data-lucide', type === 'success' ? 'check-circle' : 'alert-triangle');
-            toast.className = `fixed bottom-6 right-6 z-[60] flex items-start gap-3 px-6 py-4 rounded-xl shadow-2xl slide-up ${type==='success'?'bg-emerald-600':'bg-rose-600'} text-white max-w-sm`;
-            lucide.createIcons();
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                    toast.classList.remove('opacity-0');
-                }, 300);
-            }, 5000);
-        };
-
-        // Format File Sizes
-        const formatBytes = (bytes, decimals = 1) => {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-        };
-
-        // Tab Switching Helper
-        const switchTab = (tab) => {
-            if (tab === 'overview') {
-                tabOverview.classList.remove('hidden');
-                tabProfile.classList.add('hidden');
-                navOverviewBtn.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-600 text-white font-medium transition-colors';
-                navProfileBtn.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-medium transition-colors';
-            } else {
-                tabOverview.classList.add('hidden');
-                tabProfile.classList.remove('hidden');
-                navOverviewBtn.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-medium transition-colors';
-                navProfileBtn.className = 'w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-600 text-white font-medium transition-colors';
-            }
-        };
-
-        navOverviewBtn.addEventListener('click', () => switchTab('overview'));
-        navProfileBtn.addEventListener('click', () => switchTab('profile'));
-        if (jumpToProfileBtn) jumpToProfileBtn.addEventListener('click', () => switchTab('profile'));
-        if (cancelProfileBtn) cancelProfileBtn.addEventListener('click', () => switchTab('overview'));
-
-        // Profile Completeness Calculation
-        const updateCompletenessScore = () => {
-            let score = 0;
-            if (userProfileData) {
-                if (userProfileData.title) score += 10;
-                if (userProfileData.last_name && userProfileData.other_names) score += 15;
-                if (userProfileData.dob) score += 10;
-                if (userProfileData.address_1) score += 10;
-                if (userProfileData.telephone) score += 15;
-                if (userProfileData.expected_salary) score += 10;
-                if (userProfileData.cv_url) score += 30;
-            }
             
-            const progressCircle = document.getElementById('progress-circle');
-            const progressText = document.getElementById('progress-text');
-            if (progressCircle && progressText) {
-                progressText.innerText = `${score}%`;
-                const deg = (score / 100) * 360;
-                progressCircle.style.background = `conic-gradient(#e11d48 ${deg}deg, #f1f5f9 ${deg}deg)`;
-            }
-        };
+            toast.classList.remove('hidden', 'bg-emerald-600', 'bg-rose-600');
+            toast.classList.add(type === 'success' ? 'bg-emerald-600' : 'bg-rose-600');
+            icon.setAttribute('data-lucide', type === 'success' ? 'check-circle' : 'alert-circle');
+            lucide.createIcons();
 
-        // Fetch User Profile from Supabase
-        const fetchUserProfile = async (user) => {
-            currentUser = user;
-            dashUserEmail.innerText = user.email;
-
-            try {
-                const { data, error } = await supabase
-                    .from('candidate_profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-
-                if (data) {
-                    userProfileData = data;
-                    
-                    // Update Sidebar Name
-                    const fullName = [data.title, data.other_names, data.last_name].filter(Boolean).join(' ');
-                    dashUserName.innerText = fullName || 'Candidate User';
-
-                    // Populate Form Fields
-                    document.getElementById('pf-title').value = data.title || '';
-                    document.getElementById('pf-lastname').value = data.last_name || '';
-                    document.getElementById('pf-othernames').value = data.other_names || '';
-                    document.getElementById('pf-initials').value = data.initials || '';
-                    document.getElementById('pf-dob').value = data.dob || '';
-                    document.getElementById('pf-nationality').value = data.nationality || 'Sri Lankan';
-                    document.getElementById('pf-address1').value = data.address_1 || '';
-                    document.getElementById('pf-address2').value = data.address_2 || '';
-                    document.getElementById('pf-address3').value = data.address_3 || '';
-                    document.getElementById('pf-nic').value = data.nic || '';
-                    document.getElementById('pf-passport').value = data.passport || '';
-                    document.getElementById('pf-country').value = data.country || 'Sri Lanka';
-                    document.getElementById('pf-district').value = data.district || '';
-                    document.getElementById('pf-city').value = data.city || '';
-                    document.getElementById('pf-telephone').value = data.telephone || '';
-                    document.getElementById('pf-mobile').value = data.mobile || '';
-                    document.getElementById('pf-notice').value = data.notice_period || '1 Month';
-                    document.getElementById('pf-salary').value = data.expected_salary || '';
-                    document.getElementById('pf-social').value = data.social_url || '';
-
-                    // Radio selections
-                    if (data.marital_status) {
-                        const maritalRad = document.querySelector(`input[name="marital"][value="${data.marital_status}"]`);
-                        if (maritalRad) maritalRad.checked = true;
-                    }
-                    if (data.gender) {
-                        const genderRad = document.querySelector(`input[name="gender"][value="${data.gender}"]`);
-                        if (genderRad) genderRad.checked = true;
-                    }
-
-                    // CV File Status
-                    if (data.cv_url) {
-                        cvUploadPrompt.classList.add('hidden');
-                        cvUploadAction.classList.add('hidden');
-                        cvUploadSuccess.classList.remove('hidden');
-                        currentCvFilename.innerText = data.cv_name || 'Uploaded_CV.pdf';
-                        cvDownloadLink.href = data.cv_url;
-                    } else {
-                        cvUploadPrompt.classList.remove('hidden');
-                        cvUploadAction.classList.add('hidden');
-                        cvUploadSuccess.classList.add('hidden');
-                    }
-                } else {
-                    userProfileData = { id: user.id, email: user.email };
-                    dashUserName.innerText = user.email.split('@')[0];
-                }
-
-                updateCompletenessScore();
-
-            } catch (err) {
-                console.warn('Profile fetch note:', err);
-                userProfileData = { id: user.id, email: user.email };
-            }
-        };
-
-        // Session Check
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            initialLoader.classList.add('hidden');
-
-            if (session?.user) {
-                authView.classList.add('hidden');
-                mainNav.classList.remove('hidden');
-                dashboardView.classList.remove('hidden');
-                await fetchUserProfile(session.user);
-            } else {
-                authView.classList.remove('hidden');
-                mainNav.classList.add('hidden');
-                dashboardView.classList.add('hidden');
-            }
-        };
-        checkSession();
-
-        // Listen for Auth changes
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session?.user) {
-                authView.classList.add('hidden');
-                mainNav.classList.remove('hidden');
-                dashboardView.classList.remove('hidden');
-                await fetchUserProfile(session.user);
-            } else if (event === 'SIGNED_OUT') {
-                authView.classList.remove('hidden');
-                mainNav.classList.add('hidden');
-                dashboardView.classList.add('hidden');
-                currentUser = null;
-                userProfileData = null;
-            }
-        });
+            toast.style.animation = 'slideUp 0.3s ease forwards';
+            
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 4000);
+        }
 
         // Toggle Password Visibility
         togglePasswordBtn.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            eyeIcon.setAttribute('data-lucide', type === 'password' ? 'eye' : 'eye-off');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.setAttribute('data-lucide', 'eye');
+            }
             lucide.createIcons();
         });
 
         // Toggle Login / Signup Mode
         toggleModeBtn.addEventListener('click', () => {
             isLoginMode = !isLoginMode;
-            const container = document.querySelector('.p-8');
-            container.style.opacity = '0';
-            
-            setTimeout(() => {
-                if (isLoginMode) {
-                    formTitle.innerText = 'Candidate Sign In';
-                    formSubtitle.innerText = 'Access your personal profile and manage your CV';
-                    btnText.innerText = 'Sign In';
-                    toggleText.innerText = "Don't have an account?";
-                    toggleModeBtn.innerText = 'Create Account';
-                    forgotPasswordLink.classList.remove('hidden');
-                } else {
-                    formTitle.innerText = 'Create Candidate Profile';
-                    formSubtitle.innerText = 'Sign up to upload your CV & get discovered';
-                    btnText.innerText = 'Create Account';
-                    toggleText.innerText = 'Already have an account?';
-                    toggleModeBtn.innerText = 'Sign In';
-                    forgotPasswordLink.classList.add('hidden');
-                }
-                container.style.opacity = '1';
-                container.style.transition = 'opacity 0.3s ease-in-out';
-            }, 150);
+            if (isLoginMode) {
+                formTitle.innerText = "Candidate Sign In";
+                formSubtitle.innerText = "Access your personal profile and manage your CV";
+                btnText.innerText = "Sign In";
+                toggleText.innerText = "Don't have an account?";
+                toggleModeBtn.innerText = "Create Account";
+                forgotPasswordLink.classList.remove('hidden');
+            } else {
+                formTitle.innerText = "Create Candidate Account";
+                formSubtitle.innerText = "Join us to apply for jobs and build your profile";
+                btnText.innerText = "Sign Up";
+                toggleText.innerText = "Already have an account?";
+                toggleModeBtn.innerText = "Sign In";
+                forgotPasswordLink.classList.add('hidden');
+            }
         });
 
-        // Handle Sign In / Sign Up
+        // Authenticate User (Login / Register)
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = emailInput.value.trim();
             const password = passwordInput.value;
 
-            if (!email || !password) {
-                showToast("Please fill in email and password.", "error");
-                return;
-            }
-
-            loadingOverlayText.innerText = isLoginMode ? "Authenticating..." : "Creating Candidate Account...";
             loadingOverlay.classList.remove('hidden');
             loadingOverlay.classList.add('flex');
+            loadingOverlayText.innerText = isLoginMode ? "Signing In..." : "Creating Account...";
 
             try {
                 if (isLoginMode) {
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    const { error } = await supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
-                    showToast("Signed in successfully!");
+                    showToast("Successfully signed in!");
                 } else {
-                    const { data, error } = await supabase.auth.signUp({ email, password });
+                    const { error } = await supabase.auth.signUp({ email, password });
                     if (error) throw error;
-
-                    if (data.session) {
-                        showToast("Account created successfully!");
-                    } else {
-                        showToast("Account created! Please check your email for confirmation.");
-                        toggleModeBtn.click();
-                        passwordInput.value = '';
-                    }
+                    showToast("Account created successfully! You are now logged in.");
                 }
             } catch (err) {
-                console.error('Auth error:', err);
-                let msg = err.message || "Authentication failed.";
-                if (msg.includes("Invalid login credentials")) msg = "Incorrect email or password.";
-                else if (msg.includes("User already registered")) msg = "This email is already registered. Please sign in.";
-                showToast(msg, "error");
-            } finally {
+                showToast(err.message || "Authentication failed.", "error");
                 loadingOverlay.classList.add('hidden');
                 loadingOverlay.classList.remove('flex');
             }
         });
 
-        // Handle Sign Out
+        // Sign Out
         logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
             showToast("Signed out successfully.");
         });
 
-        // Forgot password click
-        forgotPasswordLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            const email = emailInput.value.trim();
-            if(!email) {
-                showToast("Enter your email address first.", "error");
-                emailInput.focus();
-                return;
-            }
-            showToast("Password reset link sent if registered.", "success");
-        });
+        // View Management
+        function showAuthView() {
+            initialLoader.classList.add('hidden');
+            dashboardView.classList.add('hidden');
+            mainNav.classList.add('hidden');
+            authView.classList.remove('hidden');
+            loadingOverlay.classList.add('hidden');
+            loadingOverlay.classList.remove('flex');
+        }
 
-        // --- CV FILE HANDLING (MAX 5MB) ---
+        function showDashboardView() {
+            initialLoader.classList.add('hidden');
+            authView.classList.add('hidden');
+            mainNav.classList.remove('hidden');
+            dashboardView.classList.remove('hidden');
+        }
+
+        // Switch Dashboard Tabs
+        function switchTab(tabName) {
+            if (tabName === 'overview') {
+                tabOverview.classList.remove('hidden');
+                tabProfile.classList.add('hidden');
+                navOverview.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-600 text-white font-medium transition-colors shadow-md";
+                navProfile.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-medium transition-colors";
+            } else {
+                tabOverview.classList.add('hidden');
+                tabProfile.classList.remove('hidden');
+                navProfile.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-600 text-white font-medium transition-colors shadow-md";
+                navOverview.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-medium transition-colors";
+            }
+        }
+
+        navOverview.addEventListener('click', () => switchTab('overview'));
+        navProfile.addEventListener('click', () => switchTab('profile'));
+        jumpToProfile.addEventListener('click', () => switchTab('profile'));
+
+        async function loadUserData(user) {
+            currentUser = user;
+            document.getElementById('dash-user-name').innerText = user.email.split('@')[0];
+            document.getElementById('dash-user-email').innerText = user.email;
+
+            await loadCandidateProfile();
+            await loadCVDocument();
+            updateProfileCompleteness();
+        }
+
+        async function loadCandidateProfile() {
+            try {
+                const { data, error } = await supabase
+                    .from('candidates')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .maybeSingle();
+
+                if (data) {
+                    if (data.title) document.getElementById('pf-title').value = data.title;
+                    if (data.last_name) document.getElementById('pf-lastname').value = data.last_name;
+                    if (data.other_names) document.getElementById('pf-othernames').value = data.other_names;
+                    if (data.initials) document.getElementById('pf-initials').value = data.initials;
+                    if (data.dob) document.getElementById('pf-dob').value = data.dob;
+                    if (data.nationality) document.getElementById('pf-nationality').value = data.nationality;
+                    if (data.marital_status) document.querySelector(`input[name="marital"][value="${data.marital_status}"]`).checked = true;
+                    if (data.gender) document.querySelector(`input[name="gender"][value="${data.gender}"]`).checked = true;
+                    
+                    if (data.address1) document.getElementById('pf-address1').value = data.address1;
+                    if (data.address2) document.getElementById('pf-address2').value = data.address2;
+                    if (data.address3) document.getElementById('pf-address3').value = data.address3;
+                    
+                    if (data.nic) document.getElementById('pf-nic').value = data.nic;
+                    if (data.passport) document.getElementById('pf-passport').value = data.passport;
+                    if (data.country) document.getElementById('pf-country').value = data.country;
+                    if (data.district) document.getElementById('pf-district').value = data.district;
+                    if (data.city) document.getElementById('pf-city').value = data.city;
+                    
+                    if (data.telephone) document.getElementById('pf-telephone').value = data.telephone;
+                    if (data.mobile) document.getElementById('pf-mobile').value = data.mobile;
+                    
+                    if (data.notice_period) document.getElementById('pf-notice').value = data.notice_period;
+                    if (data.expected_salary) document.getElementById('pf-salary').value = data.expected_salary;
+                    if (data.social_url) document.getElementById('pf-social').value = data.social_url;
+
+                    if (data.last_name) document.getElementById('dash-user-name').innerText = `${data.initials || ''} ${data.last_name}`;
+                }
+            } catch (err) {
+                console.error("Error loading profile:", err);
+            }
+        }
+
+        async function loadCVDocument() {
+            try {
+                const { data, error } = await supabase
+                    .from('candidate_documents')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (data && data.file_url) {
+                    uploadedDocumentUrl = data.file_url;
+                    currentCvFilename.innerText = data.file_name;
+                    cvDownloadLink.href = data.file_url;
+                    
+                    cvUploadPrompt.classList.add('hidden');
+                    cvUploadAction.classList.add('hidden');
+                    cvUploadSuccess.classList.remove('hidden');
+                } else {
+                    resetCVUI();
+                }
+            } catch (err) {
+                console.error("Error loading CV:", err);
+            }
+        }
+
+        function updateProfileCompleteness() {
+            let fieldsFilled = 0;
+            const requiredInputs = [
+                'pf-title', 'pf-lastname', 'pf-othernames', 'pf-initials', 'pf-dob', 
+                'pf-address1', 'pf-country', 'pf-district', 'pf-city', 'pf-telephone', 'pf-salary'
+            ];
+
+            requiredInputs.forEach(id => {
+                if (document.getElementById(id).value.trim() !== '') fieldsFilled++;
+            });
+
+            // Calculate percentage
+            let totalRequired = requiredInputs.length + 1; // +1 for CV
+            if (uploadedDocumentUrl) fieldsFilled++;
+
+            let percentage = Math.round((fieldsFilled / totalRequired) * 100);
+            
+            document.getElementById('progress-text').innerText = `${percentage}%`;
+            document.getElementById('progress-circle').style.background = `conic-gradient(#e11d48 ${percentage * 3.6}deg, #f1f5f9 0deg)`;
+        }
+
+        // CV Upload Handling
+        function resetCVUI() {
+            selectedCVFile = null;
+            cvFileInput.value = '';
+            cvUploadAction.classList.add('hidden');
+            cvUploadSuccess.classList.add('hidden');
+            cvUploadPrompt.classList.remove('hidden');
+        }
+
         cvFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            // Check 5MB limit (5 * 1024 * 1024 bytes)
             if (file.size > MAX_CV_FILE_SIZE) {
-                showToast(`File "${file.name}" exceeds the maximum allowed size of 5MB (${formatBytes(file.size)}).`, "error");
-                cvFileInput.value = '';
+                showToast("File size exceeds the 5MB limit.", "error");
+                e.target.value = '';
                 return;
             }
 
             selectedCVFile = file;
             cvPreviewName.innerText = file.name;
-            cvPreviewSize.innerText = formatBytes(file.size);
-
+            cvPreviewSize.innerText = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+            
             cvUploadPrompt.classList.add('hidden');
+            cvUploadSuccess.classList.add('hidden');
             cvUploadAction.classList.remove('hidden');
         });
 
-        cancelCvBtn.addEventListener('click', () => {
-            selectedCVFile = null;
-            cvFileInput.value = '';
-            cvUploadAction.classList.add('hidden');
-            if (userProfileData?.cv_url) {
-                cvUploadSuccess.classList.remove('hidden');
-            } else {
-                cvUploadPrompt.classList.remove('hidden');
-            }
-        });
+        cancelCvBtn.addEventListener('click', resetCVUI);
+        
+        reuploadCvBtn.addEventListener('click', resetCVUI);
 
-        reuploadCvBtn.addEventListener('click', () => {
-            cvUploadSuccess.classList.add('hidden');
-            cvUploadPrompt.classList.remove('hidden');
-            cvFileInput.click();
-        });
-
-        // Upload CV File to Supabase Storage & Profile Record
         uploadCvNowBtn.addEventListener('click', async () => {
-            if (!selectedCVFile || !currentUser) {
-                showToast("No CV file selected.", "error");
-                return;
-            }
+            if (!selectedCVFile || !currentUser) return;
 
-            const originalBtnHtml = uploadCvNowBtn.innerHTML;
-            uploadCvNowBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Uploading...';
             uploadCvNowBtn.disabled = true;
+            uploadCvNowBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Uploading...`;
             lucide.createIcons();
 
             try {
-                const cleanFileName = selectedCVFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                const filePath = `${currentUser.id}/cv_${Date.now()}_${cleanFileName}`;
+                const fileExt = selectedCVFile.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+                const filePath = `${currentUser.id}/${fileName}`;
 
-                let publicUrl = null;
+                // Upload to Supabase Storage
+                const { error: storageError } = await supabase.storage
+                    .from('ackrich-jobs')
+                    .upload(filePath, selectedCVFile);
 
-                // 1. Upload to Supabase Storage bucket 'candidate_cvs' or 'vacancy_files'
-                try {
-                    const { data: storageData, error: storageErr } = await supabase.storage
-                        .from('candidate_cvs')
-                        .upload(filePath, selectedCVFile, { upsert: true });
+                if (storageError) throw storageError;
 
-                    if (!storageErr && storageData) {
-                        const { data: urlData } = supabase.storage
-                            .from('candidate_cvs')
-                            .getPublicUrl(filePath);
-                        publicUrl = urlData?.publicUrl || null;
-                    } else {
-                        // Fallback attempt to general storage bucket
-                        const { data: fallbackData } = await supabase.storage
-                            .from('vacancy_files')
-                            .upload(`cvs/${filePath}`, selectedCVFile, { upsert: true });
-                        if (fallbackData) {
-                            publicUrl = supabase.storage.from('vacancy_files').getPublicUrl(`cvs/${filePath}`).data?.publicUrl;
-                        }
-                    }
-                } catch (sErr) {
-                    console.warn("Storage bucket error, generating mock link:", sErr);
-                }
+                const { data: publicUrlData } = supabase.storage
+                    .from('ackrich-jobs')
+                    .getPublicUrl(filePath);
 
-                if (!publicUrl) {
-                    publicUrl = `https://storage.supabase.co/candidate_cvs/${currentUser.id}/${cleanFileName}`;
-                }
-
-                // 2. Update Supabase Database Table 'candidate_profiles'
-                const profilePayload = {
-                    id: currentUser.id,
-                    email: currentUser.email,
-                    cv_url: publicUrl,
-                    cv_name: selectedCVFile.name,
-                    cv_size: selectedCVFile.size,
-                    updated_at: new Date().toISOString()
+                // Save to Database
+                const docRecord = {
+                    user_id: currentUser.id,
+                    file_name: selectedCVFile.name,
+                    file_url: publicUrlData.publicUrl,
+                    file_path: filePath,
+                    file_size: selectedCVFile.size
                 };
 
-                const { error: dbErr } = await supabase
-                    .from('candidate_profiles')
-                    .upsert(profilePayload);
+                const { error: dbError } = await supabase.from('candidate_documents').insert(docRecord);
+                if (dbError) throw dbError;
 
-                if (dbErr) throw dbErr;
-
-                // Update local UI
-                userProfileData = { ...userProfileData, ...profilePayload };
-                currentCvFilename.innerText = selectedCVFile.name;
-                cvDownloadLink.href = publicUrl;
-
-                cvUploadAction.classList.add('hidden');
-                cvUploadSuccess.classList.remove('hidden');
-                selectedCVFile = null;
-                cvFileInput.value = '';
-
-                updateCompletenessScore();
-                showToast("CV uploaded and saved successfully!");
+                showToast("CV uploaded successfully!");
+                await loadCVDocument();
+                updateProfileCompleteness();
 
             } catch (err) {
-                console.error("CV Upload Error:", err);
-                showToast("Upload failed: " + (err.message || "Storage error."), "error");
+                showToast(err.message || "Failed to upload CV.", "error");
+                console.error(err);
             } finally {
-                uploadCvNowBtn.innerHTML = originalBtnHtml;
                 uploadCvNowBtn.disabled = false;
+                uploadCvNowBtn.innerHTML = `<i data-lucide="upload" class="w-4 h-4"></i> Upload CV`;
                 lucide.createIcons();
             }
         });
 
-        // --- PERSONAL PROFILE FORM SUBMISSION ---
+        // Profile Form Submission
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!currentUser) return;
 
-            if (!currentUser) {
-                showToast("Session expired. Please sign in again.", "error");
-                return;
-            }
-
-            const originalBtnHtml = saveProfileBtn.innerHTML;
-            saveProfileBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Saving...';
             saveProfileBtn.disabled = true;
+            saveProfileBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Saving...`;
             lucide.createIcons();
 
+            const profileData = {
+                user_id: currentUser.id,
+                email: currentUser.email,
+                title: document.getElementById('pf-title').value,
+                last_name: document.getElementById('pf-lastname').value.trim(),
+                other_names: document.getElementById('pf-othernames').value.trim(),
+                initials: document.getElementById('pf-initials').value.trim(),
+                dob: document.getElementById('pf-dob').value,
+                nationality: document.getElementById('pf-nationality').value,
+                marital_status: document.querySelector('input[name="marital"]:checked').value,
+                gender: document.querySelector('input[name="gender"]:checked').value,
+                address1: document.getElementById('pf-address1').value.trim(),
+                address2: document.getElementById('pf-address2').value.trim(),
+                address3: document.getElementById('pf-address3').value.trim(),
+                nic: document.getElementById('pf-nic').value.trim(),
+                passport: document.getElementById('pf-passport').value.trim(),
+                country: document.getElementById('pf-country').value,
+                district: document.getElementById('pf-district').value.trim(),
+                city: document.getElementById('pf-city').value.trim(),
+                telephone: document.getElementById('pf-telephone').value.trim(),
+                mobile: document.getElementById('pf-mobile').value.trim(),
+                notice_period: document.getElementById('pf-notice').value,
+                expected_salary: document.getElementById('pf-salary').value,
+                social_url: document.getElementById('pf-social').value.trim(),
+                updated_at: new Date().toISOString()
+            };
+
             try {
-                const profilePayload = {
-                    id: currentUser.id,
-                    email: currentUser.email,
-                    title: document.getElementById('pf-title').value,
-                    last_name: document.getElementById('pf-lastname').value,
-                    other_names: document.getElementById('pf-othernames').value,
-                    initials: document.getElementById('pf-initials').value,
-                    dob: document.getElementById('pf-dob').value,
-                    nationality: document.getElementById('pf-nationality').value,
-                    marital_status: document.querySelector('input[name="marital"]:checked')?.value || 'Single',
-                    gender: document.querySelector('input[name="gender"]:checked')?.value || 'Male',
-                    address_1: document.getElementById('pf-address1').value,
-                    address_2: document.getElementById('pf-address2').value,
-                    address_3: document.getElementById('pf-address3').value,
-                    nic: document.getElementById('pf-nic').value,
-                    passport: document.getElementById('pf-passport').value,
-                    country: document.getElementById('pf-country').value,
-                    district: document.getElementById('pf-district').value,
-                    city: document.getElementById('pf-city').value,
-                    telephone: document.getElementById('pf-telephone').value,
-                    mobile: document.getElementById('pf-mobile').value,
-                    notice_period: document.getElementById('pf-notice').value,
-                    expected_salary: document.getElementById('pf-salary').value,
-                    social_url: document.getElementById('pf-social').value,
-                    updated_at: new Date().toISOString()
-                };
-
-                const { error } = await supabase
-                    .from('candidate_profiles')
-                    .upsert(profilePayload);
-
+                const { error } = await supabase.from('candidates').upsert(profileData, { onConflict: 'user_id' });
                 if (error) throw error;
-
-                userProfileData = { ...userProfileData, ...profilePayload };
-                const fullName = [profilePayload.title, profilePayload.other_names, profilePayload.last_name].filter(Boolean).join(' ');
-                dashUserName.innerText = fullName || currentUser.email.split('@')[0];
-
-                updateCompletenessScore();
+                
                 showToast("Personal details saved successfully!");
-                switchTab('overview');
-
+                document.getElementById('dash-user-name').innerText = `${profileData.initials} ${profileData.last_name}`;
+                updateProfileCompleteness();
+                
             } catch (err) {
-                console.error("Profile Save Error:", err);
-                showToast("Failed to save profile: " + (err.message || "Database error."), "error");
+                showToast("Failed to save details: " + err.message, "error");
             } finally {
-                saveProfileBtn.innerHTML = originalBtnHtml;
                 saveProfileBtn.disabled = false;
+                saveProfileBtn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Personal Details`;
                 lucide.createIcons();
             }
         });
+
+        cancelProfileBtn.addEventListener('click', () => {
+            switchTab('overview');
+        });
+
+        // Init Auth State
+        async function initAuth() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session?.user) {
+                    await loadUserData(session.user);
+                    showDashboardView();
+                } else {
+                    showAuthView();
+                }
+
+                // Listen for changes
+                supabase.auth.onAuthStateChange(async (event, session) => {
+                    if (event === 'SIGNED_IN' && session?.user) {
+                        await loadUserData(session.user);
+                        showDashboardView();
+                    } else if (event === 'SIGNED_OUT') {
+                        currentUser = null;
+                        showAuthView();
+                    }
+                });
+            } catch (err) {
+                console.error("Initialization error:", err);
+                showAuthView();
+            }
+        }
+
+        // Run
+        initAuth();
     </script>
 </body>
 </html>
