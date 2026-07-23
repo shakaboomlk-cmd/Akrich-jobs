@@ -3,701 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidate Portal - LankaJobs</title>
+    <title>Login - LankaJobs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase JS Client v2 -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUp { 
+            from { transform: translateY(20px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+        .slide-up { animation: slideUp 0.4s ease-out forwards; }
         
-        /* Custom Scrollbar for dashboard */
-        ::-webkit-scrollbar { width: 6px; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        /* Circular Progress Indicator */
-        .circular-progress {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: conic-gradient(#e11d48 0deg, #f1f5f9 0deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .circular-progress::before {
-            content: "";
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background-color: white;
-        }
-        .progress-value {
-            position: relative;
-            font-size: 2rem;
-            font-weight: 800;
-            color: #0f172a;
-        }
     </style>
 </head>
-<body class="bg-slate-50 font-sans selection:bg-rose-200 selection:text-rose-900 min-h-screen flex flex-col antialiased">
+<body class="bg-slate-50 font-sans selection:bg-rose-200 selection:text-rose-900 min-h-screen flex flex-col relative overflow-x-hidden">
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
-
-    <!-- INITIAL LOADING SCREEN (Prevents login flash on refresh) -->
-    <div id="initial-loader" class="fixed inset-0 bg-slate-50 z-50 flex flex-col justify-center items-center">
-        <i data-lucide="loader-2" class="w-12 h-12 text-rose-600 animate-spin mb-4"></i>
-        <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></h2>
-        <p class="text-slate-500 text-sm mt-2 font-medium">Loading candidate portal...</p>
-    </div>
-
-    <!-- Navbar (Hidden on Login Screen) -->
-    <nav id="main-nav" class="hidden bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="index.html" class="flex-shrink-0 flex items-center cursor-pointer group">
-                        <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center mr-2 group-hover:bg-rose-700 transition-colors shadow-inner">
+                        <div class="w-10 h-10 bg-rose-600 rounded-lg flex items-center justify-center mr-2 group-hover:bg-rose-700 transition-colors shadow-sm">
                             <i data-lucide="briefcase" class="text-white w-6 h-6"></i>
                         </div>
-                        <span class="font-bold text-xl md:text-2xl text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></span>
+                        <span class="font-bold text-2xl text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></span>
                     </a>
                 </div>
-                
-                <div class="flex items-center gap-4">
-                    <a href="index.html" class="hidden md:block px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Home</a>
-                    <div class="hidden md:block h-6 w-px bg-gray-300 mx-1"></div>
-                    
-                    <button onclick="window.handleLogout()" class="flex items-center gap-2 bg-white border border-gray-300 text-slate-700 px-3.5 py-2 rounded-lg hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 transition-all shadow-sm font-semibold text-sm">
-                        <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
-                    </button>
+                <div class="hidden md:flex sm:items-center sm:space-x-4">
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Home</a>
+                    <a href="post_vacancy.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Post Your Vacancy</a>
+                    <a href="contactus.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors">Contact Us</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- ================= LOGIN VIEW ================= -->
-    <div id="login-view" class="hidden flex-1 flex justify-center items-center p-4 fade-in">
-        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-8 text-center border border-gray-100">
-            <a href="index.html" class="flex justify-center items-center mb-6 cursor-pointer group">
-                <div class="w-12 h-12 bg-rose-600 rounded-xl flex items-center justify-center mr-2 shadow-md group-hover:scale-105 transition-transform"><i data-lucide="briefcase" class="text-white w-7 h-7"></i></div>
-                <span class="font-bold text-3xl text-slate-800 tracking-tight">Lanka<span class="text-rose-600">Jobs</span></span>
-            </a>
-            
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">Welcome Back</h2>
-            <p class="text-slate-500 mb-8 text-sm leading-relaxed">Sign in with Google to access your Candidate Profile and job applications.</p>
-            
-            <button id="google-login-btn" onclick="window.googleSignIn()" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-slate-700 font-semibold py-3.5 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-400 active:scale-[0.99] shadow-sm transition-all">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
-                <span id="login-btn-text">Sign in with Google</span>
-            </button>
-            
-            <a href="index.html" class="block mt-8 text-sm text-slate-500 hover:text-rose-600 font-medium transition-colors">← Return to Home</a>
-        </div>
-    </div>
+    <main class="flex-1 flex items-center justify-center p-4 py-12 relative z-10">
+        
+        <!-- Decorative Background Elements -->
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-rose-100 blur-[100px] opacity-60 z-0"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-100 blur-[100px] opacity-60 z-0"></div>
 
-    <!-- ================= DASHBOARD VIEW ================= -->
-    <div id="dashboard-view" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 fade-in w-full flex-1">
-        <div class="flex flex-col md:flex-row gap-6 h-full">
+        <div class="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden slide-up relative z-10">
             
-            <!-- Left Sidebar -->
-            <div class="w-full md:w-64 bg-slate-900 rounded-2xl p-6 text-white shadow-xl flex flex-col flex-shrink-0">
-                <div class="flex flex-col items-center mb-8">
-                    <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-3 border-2 border-white/20 overflow-hidden shadow-inner relative">
-                        <i id="dash-avatar" data-lucide="user" class="w-10 h-10 text-slate-300"></i>
-                        <img id="dash-avatar-img" class="w-full h-full object-cover hidden" src="" alt="Avatar" onerror="this.classList.add('hidden'); document.getElementById('dash-avatar').classList.remove('hidden');">
+            <div class="p-8 sm:p-10">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm border border-rose-200">
+                        <i data-lucide="lock-keyhole" class="w-8 h-8"></i>
                     </div>
-                    <h3 class="font-bold text-lg text-center leading-tight text-white" id="dash-name">Candidate Name</h3>
-                    <p class="text-slate-400 text-xs text-center break-all mt-1 font-medium" id="dash-email">user@email.com</p>
+                    <h2 id="form-title" class="text-2xl font-bold text-slate-900 tracking-tight mb-1">Welcome Back</h2>
+                    <p id="form-subtitle" class="text-sm text-slate-500">Sign in to manage your vacancy postings</p>
                 </div>
-
-                <nav class="space-y-2 flex-1">
-                    <button onclick="window.switchDashTab('overview')" id="nav-overview" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-600 text-white font-semibold transition-all shadow-md">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
-                    </button>
-                    <button onclick="window.switchDashTab('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-semibold transition-all">
-                        <i data-lucide="file-signature" class="w-5 h-5"></i> Personal Details
-                    </button>
-                </nav>
-
-                <div class="mt-8 pt-6 border-t border-slate-700/50 flex justify-center gap-4">
-                    <a href="index.html" class="text-slate-400 hover:text-rose-400 transition-colors"><i data-lucide="home" class="w-5 h-5"></i></a>
-                    <a href="contactus.html" class="text-slate-400 hover:text-rose-400 transition-colors"><i data-lucide="help-circle" class="w-5 h-5"></i></a>
-                </div>
-            </div>
-
-            <!-- Main Content Area -->
-            <div class="flex-1 bg-white rounded-2xl shadow-sm border border-gray-200 p-6 overflow-hidden flex flex-col">
                 
-                <!-- TAB 1: OVERVIEW -->
-                <div id="tab-overview" class="fade-in space-y-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        
-                        <!-- Profile Completeness Card -->
-                        <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col items-center justify-center">
-                            <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-2 w-full text-lg"><i data-lucide="pie-chart" class="w-5 h-5 text-rose-600"></i> Profile Completeness</h3>
-                            <div class="circular-progress shadow-inner" id="progress-circle">
-                                <span class="progress-value" id="progress-text">0%</span>
+                <form id="auth-form" class="space-y-5">
+                    <div class="space-y-1">
+                        <label for="email" class="text-sm font-semibold text-slate-700">Email Address</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="mail" class="w-5 h-5 text-slate-400"></i>
                             </div>
-                            <p class="text-sm text-slate-500 mt-6 text-center">Fill out all details to reach 100%. <a href="#" onclick="window.switchDashTab('profile')" class="text-rose-600 hover:underline font-bold">Update Profile</a></p>
-                        </div>
-
-                        <!-- Document Upload Card -->
-                        <div class="rounded-2xl border border-emerald-200 shadow-sm overflow-hidden flex flex-col bg-white">
-                            <div class="bg-emerald-600 text-white p-4 font-bold flex items-center gap-2">
-                                <i data-lucide="upload-cloud" class="w-5 h-5"></i> CV / Document Upload
-                            </div>
-                            <div class="p-6 bg-emerald-50/30 flex-1 flex flex-col justify-center items-center relative">
-                                
-                                <!-- Upload Prompt -->
-                                <label id="cv-upload-prompt" class="flex flex-col items-center justify-center w-full h-40 border-2 border-emerald-300 border-dashed rounded-xl cursor-pointer bg-white hover:bg-emerald-50 transition-colors p-4 text-center">
-                                    <i data-lucide="file-up" class="w-10 h-10 mb-2 text-emerald-600"></i>
-                                    <p class="mb-1 text-sm text-emerald-800 font-bold">Click or drag file to attach CV</p>
-                                    <p class="text-xs text-emerald-600 font-medium">PDF, DOC, DOCX, PNG, JPG (Max 5MB)</p>
-                                    <input type="file" id="cv-file-input" class="hidden" onchange="window.handleFileSelect(event)" accept=".pdf, .doc, .docx, image/png, image/jpeg, image/jpg" />
-                                </label>
-
-                                <!-- Action UI after file selection -->
-                                <div id="cv-upload-action" class="hidden w-full flex flex-col items-center justify-center bg-white p-6 rounded-xl border border-emerald-200 shadow-sm">
-                                    <i data-lucide="file-text" class="w-12 h-12 text-emerald-600 mb-2"></i>
-                                    <p id="cv-preview-name" class="font-bold text-slate-800 text-center truncate w-full px-4 mb-4 text-sm">document.pdf</p>
-                                    <div class="flex gap-3 w-full">
-                                        <button onclick="window.cancelCVUpload()" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 font-bold text-sm transition-colors">Cancel</button>
-                                        <button onclick="window.uploadCV()" id="cv-upload-btn" class="flex-1 px-4 py-2 bg-emerald-600 rounded-lg text-white hover:bg-emerald-700 font-bold text-sm transition-colors flex justify-center items-center gap-2 shadow-sm">
-                                            <i data-lucide="upload" class="w-4 h-4"></i> Upload Now
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Uploaded Documents List Section -->
-                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                        <h3 class="font-bold text-slate-800 text-lg mb-4 flex items-center gap-2">
-                            <i data-lucide="folder" class="w-5 h-5 text-rose-600"></i> Attached Documents
-                        </h3>
-                        <div id="documents-list" class="space-y-3">
-                            <p class="text-sm text-slate-400 italic">No documents uploaded yet.</p>
+                            <input type="email" id="email" required placeholder="you@company.com" 
+                                class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-all placeholder:text-slate-400 text-slate-700 font-medium">
                         </div>
                     </div>
-                </div>
-
-                <!-- TAB 2: PERSONAL DETAILS -->
-                <div id="tab-profile" class="hidden fade-in space-y-6">
-                    <div class="border-b border-slate-200 pb-4 flex justify-between items-center">
-                        <div>
-                            <h3 class="text-xl font-bold text-slate-800">Personal & Professional Details</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">Keep your details updated so recruiters can evaluate your application.</p>
+                    
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between">
+                            <label for="password" class="text-sm font-semibold text-slate-700">Password</label>
+                            <a href="#" id="forgot-password-link" class="text-xs font-medium text-rose-600 hover:text-rose-700 transition-colors">Forgot password?</a>
                         </div>
-                        <button onclick="window.saveProfile()" id="save-profile-btn" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-2 text-sm">
-                            <i data-lucide="save" class="w-4 h-4"></i> Save Profile
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="key-round" class="w-5 h-5 text-slate-400"></i>
+                            </div>
+                            <input type="password" id="password" required placeholder="••••••••" minlength="6"
+                                class="w-full pl-11 pr-12 py-3 bg-slate-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-all placeholder:text-slate-400 text-slate-700 font-medium">
+                            <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition-colors">
+                                <i data-lucide="eye" id="eye-icon" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full py-3.5 mt-2 rounded-xl bg-rose-600 text-white font-bold text-base hover:bg-rose-700 shadow-lg shadow-rose-600/20 transition-all flex items-center justify-center gap-2">
+                        <span id="btn-text">Sign In</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+                    <p class="text-sm text-slate-600">
+                        <span id="toggle-text">Don't have an account?</span> 
+                        <button type="button" id="toggle-mode-btn" class="font-bold text-rose-600 hover:text-rose-700 transition-colors ml-1 focus:outline-none focus:underline">
+                            Sign up
                         </button>
-                    </div>
-
-                    <form id="profile-form" onsubmit="event.preventDefault(); window.saveProfile();" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Full Name</label>
-                            <input type="text" id="prof-name" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm font-medium" placeholder="John Doe">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Email Address</label>
-                            <input type="email" id="prof-email" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-500 outline-none text-sm font-medium cursor-not-allowed" readonly>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Phone / Mobile Number</label>
-                            <input type="tel" id="prof-phone" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm font-medium" placeholder="+94 77 123 4567">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Date of Birth</label>
-                            <input type="date" id="prof-dob" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm font-medium">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Gender</label>
-                            <select id="prof-gender" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm font-medium">
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other / Prefer not to say</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">District / Location</label>
-                            <select id="prof-district" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm font-medium">
-                                <option value="">Select District</option>
-                                <option value="Colombo">Colombo</option>
-                                <option value="Gampaha">Gampaha</option>
-                                <option value="Kalutara">Kalutara</option>
-                                <option value="Kandy">Kandy</option>
-                                <option value="Galle">Galle</option>
-                                <option value="Kurunegala">Kurunegala</option>
-                                <option value="Jaffna">Jaffna</option>
-                                <option value="Matara">Matara</option>
-                                <option value="Other">Other Location / Remote</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Highest Education Level</label>
-                            <select id="prof-education" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm font-medium">
-                                <option value="">Select Qualification</option>
-                                <option value="GCE O/L">GCE O/L</option>
-                                <option value="GCE A/L">GCE A/L</option>
-                                <option value="Diploma">Diploma / Higher Diploma</option>
-                                <option value="Bachelor Degree">Bachelor's Degree</option>
-                                <option value="Master Degree">Master's Degree / PhD</option>
-                                <option value="Professional Qualification">Professional (CIMA, ACCA, etc.)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Key Skills / Occupation</label>
-                            <input type="text" id="prof-skills" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm font-medium" placeholder="e.g. Accounting, Software Engineering, Sales">
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Professional Summary / Bio</label>
-                            <textarea id="prof-bio" rows="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all text-sm font-medium" placeholder="Briefly introduce yourself and career aspirations..."></textarea>
-                        </div>
-
-                        <div class="md:col-span-2 flex items-center gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                            <input type="checkbox" id="prof-alerts" class="w-5 h-5 text-rose-600 rounded border-gray-300 focus:ring-rose-500 cursor-pointer">
-                            <label for="prof-alerts" class="text-sm font-semibold text-slate-700 cursor-pointer">
-                                Receive relevant job alerts & updates via email
-                            </label>
-                        </div>
-
-                    </form>
+                    </p>
                 </div>
-
+            </div>
+            
+            <!-- Loading Overlay -->
+            <div id="loading-overlay" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm flex-col items-center justify-center z-20 fade-in">
+                <i data-lucide="loader-2" class="w-10 h-10 text-rose-600 animate-spin mb-3"></i>
+                <p class="text-sm font-semibold text-slate-700">Authenticating...</p>
             </div>
         </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-6 right-6 z-[60] flex items-start gap-3 text-white px-6 py-4 rounded-xl shadow-2xl transition-all max-w-sm">
+        <div class="mt-0.5">
+            <i id="toast-icon" data-lucide="check-circle" class="w-5 h-5"></i>
+        </div>
+        <span id="toast-message" class="font-medium text-sm leading-snug">Message</span>
     </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-        // Supabase Credentials
+        // Initialize Supabase Client
         const SUPABASE_URL = 'https://cezyaulwgrgxyjhwyptk.supabase.co';
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_qslhNTtJ4ZEPooWM3s4c8g_ri8s_OGi';
-
         const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-        let currentUser = null;
-        let selectedFile = null;
-        let uploadedDocuments = [];
-
-        // Initialize Lucide Icons
+        
+        // Initialize Icons
         lucide.createIcons();
 
-        // Notification Toast Helper
-        function showNotification(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            const bgColor = type === 'success' ? 'bg-emerald-600 text-white' : type === 'error' ? 'bg-rose-600 text-white' : 'bg-slate-800 text-white';
-            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info';
-            
-            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg font-medium text-sm transition-all transform translate-y-2 opacity-0 pointer-events-auto ${bgColor}`;
-            toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5"></i> <span>${message}</span>`;
-            
-            container.appendChild(toast);
+        // State management
+        let isLoginMode = true;
+
+        // DOM Elements
+        const form = document.getElementById('auth-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password');
+        const eyeIcon = document.getElementById('eye-icon');
+        
+        const formTitle = document.getElementById('form-title');
+        const formSubtitle = document.getElementById('form-subtitle');
+        const btnText = document.getElementById('btn-text');
+        const toggleText = document.getElementById('toggle-text');
+        const toggleModeBtn = document.getElementById('toggle-mode-btn');
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const loadingOverlay = document.getElementById('loading-overlay');
+
+        // Toast Helper
+        const showToast = (message, type = 'success') => {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            document.getElementById('toast-icon').setAttribute('data-lucide', type === 'success' ? 'check-circle' : 'alert-triangle');
+            toast.className = `fixed bottom-6 right-6 z-[60] flex items-start gap-3 px-6 py-4 rounded-xl shadow-2xl slide-up ${type==='success'?'bg-emerald-600':'bg-rose-600'} text-white max-w-sm`;
             lucide.createIcons();
-
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            });
-
+            toast.classList.remove('hidden');
             setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
-        }
-
-        // Google OAuth Sign In
-        window.googleSignIn = async function() {
-            const btnText = document.getElementById('login-btn-text');
-            if (btnText) btnText.innerText = 'Connecting to Google...';
-
-            try {
-                const { error } = await supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                        redirectTo: window.location.origin + window.location.pathname
-                    }
-                });
-
-                if (error) throw error;
-            } catch (err) {
-                console.error("Google auth error:", err);
-                showNotification(err.message || "Failed to initiate Google sign in.", 'error');
-                if (btnText) btnText.innerText = 'Sign in with Google';
-            }
+                toast.classList.add('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('opacity-0');
+                }, 300);
+            }, 5000);
         };
 
-        // Sign Out
-        window.handleLogout = async function() {
-            try {
-                await supabase.auth.signOut();
-                showNotification("Signed out successfully", 'success');
-                showLoginView();
-            } catch (err) {
-                console.error("Logout error:", err);
+        // Check if user is already logged in
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                // If logged in, redirect to post vacancy page
+                window.location.href = 'post_vacancy.html';
             }
         };
+        checkSession();
 
-        // Tab Switching
-        window.switchDashTab = function(tabName) {
-            const overviewTab = document.getElementById('tab-overview');
-            const profileTab = document.getElementById('tab-profile');
-            const navOverview = document.getElementById('nav-overview');
-            const navProfile = document.getElementById('nav-profile');
-
-            if (tabName === 'overview') {
-                overviewTab.classList.remove('hidden');
-                profileTab.classList.add('hidden');
-                
-                navOverview.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-600 text-white font-semibold transition-all shadow-md";
-                navProfile.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-semibold transition-all";
-            } else {
-                overviewTab.classList.add('hidden');
-                profileTab.classList.remove('hidden');
-
-                navProfile.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-600 text-white font-semibold transition-all shadow-md";
-                navOverview.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white font-semibold transition-all";
-            }
-        };
-
-        async function loadUserData(user) {
-            currentUser = user;
-
-            // Populate static UI elements
-            const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0];
-            const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture;
-
-            document.getElementById('dash-name').innerText = fullName;
-            document.getElementById('dash-email').innerText = user.email;
-            document.getElementById('prof-email').value = user.email;
-            document.getElementById('prof-name').value = fullName;
-
-            if (avatarUrl) {
-                const img = document.getElementById('dash-avatar-img');
-                const icon = document.getElementById('dash-avatar');
-                img.src = avatarUrl;
-                img.classList.remove('hidden');
-                icon.classList.add('hidden');
-            }
-
-            // Fetch candidate record from Supabase 'candidates' table
-            try {
-                const { data: candidate, error } = await supabase
-                    .from('candidates')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .maybeSingle();
-
-                if (error) {
-                    console.warn("Supabase candidates table query note:", error.message);
-                }
-
-                if (candidate) {
-                    if (candidate.full_name) document.getElementById('prof-name').value = candidate.full_name;
-                    if (candidate.phone) document.getElementById('prof-phone').value = candidate.phone;
-                    if (candidate.dob) document.getElementById('prof-dob').value = candidate.dob;
-                    if (candidate.gender) document.getElementById('prof-gender').value = candidate.gender;
-                    if (candidate.district) document.getElementById('prof-district').value = candidate.district;
-                    if (candidate.education) document.getElementById('prof-education').value = candidate.education;
-                    if (candidate.skills) document.getElementById('prof-skills').value = candidate.skills;
-                    if (candidate.bio) document.getElementById('prof-bio').value = candidate.bio;
-                    if (candidate.job_alerts !== undefined) document.getElementById('prof-alerts').checked = candidate.job_alerts;
-                }
-            } catch (err) {
-                console.error("Error loading candidate profile:", err);
-            }
-
-            // Fetch attached documents
-            await loadDocuments();
-
-            // Calculate progress score
-            calculateProfileCompleteness();
-        }
-
-        window.saveProfile = async function() {
-            if (!currentUser) return;
-
-            const saveBtn = document.getElementById('save-profile-btn');
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Saving...`;
+        // Toggle Password Visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            eyeIcon.setAttribute('data-lucide', type === 'password' ? 'eye' : 'eye-off');
             lucide.createIcons();
+        });
 
-            const profileData = {
-                user_id: currentUser.id,
-                email: currentUser.email,
-                full_name: document.getElementById('prof-name').value.trim(),
-                phone: document.getElementById('prof-phone').value.trim(),
-                dob: document.getElementById('prof-dob').value,
-                gender: document.getElementById('prof-gender').value,
-                district: document.getElementById('prof-district').value,
-                education: document.getElementById('prof-education').value,
-                skills: document.getElementById('prof-skills').value.trim(),
-                bio: document.getElementById('prof-bio').value.trim(),
-                job_alerts: document.getElementById('prof-alerts').checked,
-                updated_at: new Date().toISOString()
-            };
+        // Toggle Login / Signup Mode
+        toggleModeBtn.addEventListener('click', () => {
+            isLoginMode = !isLoginMode;
+            
+            // Animate transition
+            const formContainer = document.querySelector('.p-8');
+            formContainer.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (isLoginMode) {
+                    formTitle.innerText = 'Welcome Back';
+                    formSubtitle.innerText = 'Sign in to manage your vacancy postings';
+                    btnText.innerText = 'Sign In';
+                    toggleText.innerText = "Don't have an account?";
+                    toggleModeBtn.innerText = 'Sign up';
+                    forgotPasswordLink.classList.remove('hidden');
+                } else {
+                    formTitle.innerText = 'Create an Account';
+                    formSubtitle.innerText = 'Sign up to start posting vacancies';
+                    btnText.innerText = 'Create Account';
+                    toggleText.innerText = 'Already have an account?';
+                    toggleModeBtn.innerText = 'Sign in';
+                    forgotPasswordLink.classList.add('hidden');
+                }
+                formContainer.style.opacity = '1';
+                formContainer.style.transition = 'opacity 0.3s ease-in-out';
+            }, 150);
+        });
 
-            try {
-                const { error } = await supabase
-                    .from('candidates')
-                    .upsert(profileData, { onConflict: 'user_id' });
+        // Handle Form Submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
 
-                if (error) throw error;
-
-                showNotification("Profile updated successfully!", "success");
-                document.getElementById('dash-name').innerText = profileData.full_name || currentUser.email;
-                calculateProfileCompleteness();
-            } catch (err) {
-                console.error("Save profile error:", err);
-                showNotification(err.message || "Failed to save profile.", "error");
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = `<i data-lucide="save" class="w-4 h-4"></i> Save Profile`;
-                lucide.createIcons();
-            }
-        };
-
-        window.handleFileSelect = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (file.size > 5 * 1024 * 1024) { // 5MB Limit
-                showNotification("File size exceeds 5MB limit.", "error");
-                event.target.value = '';
+            if (!email || !password) {
+                showToast("Please fill in all fields.", "error");
                 return;
             }
 
-            selectedFile = file;
-            document.getElementById('cv-preview-name').innerText = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-            document.getElementById('cv-upload-prompt').classList.add('hidden');
-            document.getElementById('cv-upload-action').classList.remove('hidden');
-        };
-
-        window.cancelCVUpload = function() {
-            selectedFile = null;
-            document.getElementById('cv-file-input').value = '';
-            document.getElementById('cv-upload-action').classList.add('hidden');
-            document.getElementById('cv-upload-prompt').classList.remove('hidden');
-        };
-
-        window.uploadCV = async function() {
-            if (!selectedFile || !currentUser) return;
-
-            const uploadBtn = document.getElementById('cv-upload-btn');
-            uploadBtn.disabled = true;
-            uploadBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Uploading...`;
-            lucide.createIcons();
+            loadingOverlay.classList.remove('hidden');
+            loadingOverlay.classList.add('flex');
 
             try {
-                const fileExt = selectedFile.name.split('.').pop();
-                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
-                const filePath = `${currentUser.id}/${fileName}`;
+                if (isLoginMode) {
+                    // --- SIGN IN ---
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password,
+                    });
 
-                // Try uploading to Supabase Storage bucket 'candidate-documents'
-                let fileUrl = '#';
-                const { data: storageData, error: storageError } = await supabase
-                    .storage
-                    .from('candidate-documents')
-                    .upload(filePath, selectedFile);
+                    if (error) throw error;
 
-                if (!storageError && storageData) {
-                    const { data: publicUrlData } = supabase
-                        .storage
-                        .from('candidate-documents')
-                        .getPublicUrl(filePath);
-                    fileUrl = publicUrlData.publicUrl;
-                }
-
-                // Save metadata record to table 'candidate_documents'
-                const docRecord = {
-                    user_id: currentUser.id,
-                    file_name: selectedFile.name,
-                    file_url: fileUrl,
-                    file_path: filePath,
-                    file_size: selectedFile.size,
-                    created_at: new Date().toISOString()
-                };
-
-                const { error: dbError } = await supabase
-                    .from('candidate_documents')
-                    .insert(docRecord);
-
-                if (dbError && !storageError) throw dbError;
-
-                showNotification("Document uploaded successfully!", "success");
-                window.cancelCVUpload();
-                await loadDocuments();
-                calculateProfileCompleteness();
-
-            } catch (err) {
-                console.error("Upload error:", err);
-                showNotification(err.message || "Failed to upload document.", "error");
-            } finally {
-                uploadBtn.disabled = false;
-                uploadBtn.innerHTML = `<i data-lucide="upload" class="w-4 h-4"></i> Upload Now`;
-                lucide.createIcons();
-            }
-        };
-
-        async function loadDocuments() {
-            if (!currentUser) return;
-
-            const docContainer = document.getElementById('documents-list');
-
-            try {
-                const { data: docs, error } = await supabase
-                    .from('candidate_documents')
-                    .select('*')
-                    .eq('user_id', currentUser.id)
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    console.warn("Candidate documents query note:", error.message);
-                }
-
-                uploadedDocuments = docs || [];
-
-                if (uploadedDocuments.length === 0) {
-                    docContainer.innerHTML = `<p class="text-sm text-slate-400 italic">No documents uploaded yet.</p>`;
-                    return;
-                }
-
-                docContainer.innerHTML = uploadedDocuments.map(doc => `
-                    <div class="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 transition-colors">
-                        <div class="flex items-center gap-3 overflow-hidden">
-                            <div class="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600 flex-shrink-0">
-                                <i data-lucide="file-text" class="w-5 h-5"></i>
-                            </div>
-                            <div class="truncate">
-                                <h4 class="font-bold text-slate-800 text-sm truncate">${doc.file_name}</h4>
-                                <p class="text-xs text-slate-400 font-medium">${(doc.file_size / 1024).toFixed(1)} KB • ${new Date(doc.created_at).toLocaleDateString()}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            ${doc.file_url !== '#' ? `<a href="${doc.file_url}" target="_blank" class="p-2 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-white transition-colors" title="Download/View"><i data-lucide="download" class="w-4 h-4"></i></a>` : ''}
-                            <button onclick="window.deleteDocument('${doc.id}', '${doc.file_path}')" class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-white transition-colors" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                        </div>
-                    </div>
-                `).join('');
-
-                lucide.createIcons();
-
-            } catch (err) {
-                console.error("Error loading documents:", err);
-            }
-        }
-
-        window.deleteDocument = async function(docId, filePath) {
-            if (!confirm("Are you sure you want to delete this document?")) return;
-
-            try {
-                if (filePath) {
-                    await supabase.storage.from('candidate-documents').remove([filePath]);
-                }
-
-                await supabase.from('candidate_documents').delete().eq('id', docId);
-
-                showNotification("Document deleted.", "success");
-                await loadDocuments();
-                calculateProfileCompleteness();
-            } catch (err) {
-                console.error("Delete document error:", err);
-                showNotification("Failed to delete document.", "error");
-            }
-        };
-
-        function calculateProfileCompleteness() {
-            let fields = [
-                document.getElementById('prof-name').value.trim(),
-                document.getElementById('prof-phone').value.trim(),
-                document.getElementById('prof-dob').value,
-                document.getElementById('prof-gender').value,
-                document.getElementById('prof-district').value,
-                document.getElementById('prof-education').value,
-                document.getElementById('prof-skills').value.trim(),
-                document.getElementById('prof-bio').value.trim()
-            ];
-
-            let filled = fields.filter(val => Boolean(val)).length;
-            let docBonus = uploadedDocuments.length > 0 ? 2 : 0; // 2 extra points for document
-            
-            let totalPossible = fields.length + 2;
-            let percentage = Math.min(100, Math.round(((filled + docBonus) / totalPossible) * 100));
-
-            document.getElementById('progress-text').innerText = `${percentage}%`;
-            document.getElementById('progress-circle').style.background = `conic-gradient(#e11d48 ${percentage * 3.6}deg, #f1f5f9 0deg)`;
-        }
-
-        // View Management Functions
-        function showLoginView() {
-            document.getElementById('initial-loader').classList.add('hidden');
-            document.getElementById('main-nav').classList.add('hidden');
-            document.getElementById('dashboard-view').classList.add('hidden');
-            document.getElementById('login-view').classList.remove('hidden');
-        }
-
-        function showDashboard() {
-            document.getElementById('initial-loader').classList.add('hidden');
-            document.getElementById('login-view').classList.add('hidden');
-            document.getElementById('main-nav').classList.remove('hidden');
-            document.getElementById('dashboard-view').classList.remove('hidden');
-        }
-
-        async function initAuth() {
-            try {
-                // Check active session on load
-                const { data: { session } } = await supabase.auth.getSession();
-
-                if (session?.user) {
-                    await loadUserData(session.user);
-                    showDashboard();
+                    showToast("Successfully signed in! Redirecting...");
+                    setTimeout(() => {
+                        window.location.href = 'post_vacancy.html'; // Redirect upon success
+                    }, 1500);
+                    
                 } else {
-                    showLoginView();
-                }
+                    // --- SIGN UP ---
+                    const { data, error } = await supabase.auth.signUp({
+                        email: email,
+                        password: password,
+                    });
 
-                // Auth state observer
-                supabase.auth.onAuthStateChange(async (event, session) => {
-                    if (event === 'SIGNED_IN' && session?.user) {
-                        await loadUserData(session.user);
-                        showDashboard();
-                    } else if (event === 'SIGNED_OUT') {
-                        currentUser = null;
-                        showLoginView();
+                    if (error) throw error;
+
+                    // Note: If email confirmations are enabled in Supabase settings, 
+                    // user might not be immediately signed in.
+                    if (data.session) {
+                        showToast("Account created successfully! Redirecting...");
+                        setTimeout(() => {
+                            window.location.href = 'post_vacancy.html';
+                        }, 1500);
+                    } else {
+                        showToast("Account created! Please check your email for a confirmation link.");
+                        // Reset to login mode visually
+                        toggleModeBtn.click();
+                        passwordInput.value = '';
                     }
-                });
-
-            } catch (err) {
-                console.error("Auth init error:", err);
-                showLoginView();
+                }
+            } catch (error) {
+                console.error("Auth Error:", error);
+                // Humanize common errors
+                let msg = error.message;
+                if (msg.includes("Invalid login credentials")) {
+                    msg = "Incorrect email or password.";
+                } else if (msg.includes("User already registered")) {
+                    msg = "This email is already registered. Please sign in.";
+                }
+                showToast(msg, "error");
+            } finally {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
             }
-        }
-
-        // Run
-        initAuth();
+        });
+        
+        // Handle Forgot Password placeholder
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            if(!email) {
+                showToast("Please enter your email address first to reset password.", "error");
+                emailInput.focus();
+                return;
+            }
+            
+            showToast("Password reset functionality to be implemented.", "error");
+            // To implement fully: await supabase.auth.resetPasswordForEmail(email, { redirectTo: 'YOUR_URL' })
+        });
     </script>
 </body>
 </html>
